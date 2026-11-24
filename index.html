@@ -251,14 +251,24 @@ async function login(){
  if(error){$("loginMessage").textContent=error.message;return;}
  await checkSession();
 }
+
 async function register(){
- const {error}=await db.auth.signUp({
- email:$("email").value.trim(),
- password:$("password").value
- });
- $("loginMessage").textContent=error?error.message:
- "Registro enviado. Revisa tu correo para confirmar la cuenta.";
+  $("loginMessage").textContent="Creando cuenta...";
+  
+  const {data,error}=await db.auth.signUp({
+    email:$("email").value.trim(),
+    password:$("password").value
+  });
+
+  if(error){
+    $("loginMessage").textContent="Error: "+error.message;
+    return;
+  }
+
+  $("loginMessage").textContent=
+    "Registro enviado. Revisa tu correo para confirmar la cuenta.";
 }
+
 async function resetPassword(){
  const email=$("email").value.trim();
  if(!email){$("loginMessage").textContent="Escribe primero tu correo.";return;}

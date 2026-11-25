@@ -15,43 +15,43 @@ button{cursor:pointer;border:0;border-radius:8px;padding:11px 16px;background:#1
 button.secondary{background:#e9edf3;color:#303744}
 button.danger{background:#c74444}
 header{padding:20px 4%;background:white;border-bottom:1px solid #ddd;display:flex;align-items:center;justify-content:space-between;gap:15px;flex-wrap:wrap}
-header h1{font-size:26px;margin:0}
+header h1{font-size:25px;margin:0}
 header small{color:#888}
 main{max-width:1350px;margin:25px auto;padding:0 18px}
 .panel{background:white;border:1px solid #e3e3e3;border-radius:13px;padding:22px;margin-bottom:18px}
-h2{font-size:20px;margin:0 0 20px}
+h2{font-size:20px;margin:0 0 18px}
 h3{margin-top:0}
 .hero{display:grid;grid-template-columns:1fr 1.5fr;gap:25px;align-items:center}
-.profit{font-size:clamp(38px,6vw,62px);font-weight:bold;color:#087a26;margin:8px 0}
-.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.profit{font-size:clamp(35px,6vw,58px);font-weight:bold;margin:8px 0}
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
 .metric{padding:15px;background:#f7f8fa;border-radius:9px}
 .metric span{display:block;color:#777;font-size:12px}
-.metric strong{display:block;font-size:20px;margin-top:7px}
-.green{color:#087a26}.red{color:#c34444}
+.metric strong{display:block;font-size:19px;margin-top:7px}
 .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:15px}
-.field label{display:block;font-size:12px;color:#555;margin-bottom:6px}
-.field input,.field select{width:100%;padding:11px;border:1px solid #ddd;border-radius:7px;background:white}
 .formgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:15px}
-.company{border:1px solid #e8e8e8;border-radius:10px;padding:16px}
-.companystats{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
-.companystats strong{display:block;font-size:17px}
-.companystats small{color:#888}
+.field label{display:block;font-size:12px;color:#666;margin-bottom:6px}
+.field input,.field select{width:100%;padding:11px;border:1px solid #ddd;border-radius:7px;background:white}
+.field small{display:block;color:#888;margin-top:5px}
+.actions{display:flex;gap:10px;flex-wrap:wrap}
 .tablewrap{overflow-x:auto}
-table{width:100%;border-collapse:collapse;min-width:850px;font-size:13px}
-th,td{text-align:left;padding:12px 9px;border-bottom:1px solid #eee}
+table{width:100%;border-collapse:collapse;min-width:750px;font-size:13px}
+th,td{text-align:left;padding:11px 9px;border-bottom:1px solid #eee}
 th{color:#888;font-size:11px}
-.actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.company{border:1px solid #e8e8e8;border-radius:10px;padding:16px}
+.company h3{margin:0 0 12px}
+.company p{margin:7px 0;font-size:14px}
+.notice{font-size:13px;color:#777;margin-top:10px}
 .login{max-width:430px;margin:9vh auto;padding:25px}
 .login input{width:100%;padding:13px;border:1px solid #ddd;border-radius:8px;margin:8px 0 16px}
-.login button{width:100%}
+.login button{width:100%;margin-top:5px}
 .hidden{display:none!important}
-.notice{font-size:13px;color:#777;margin-top:12px}
 #message{padding:12px;border-radius:8px;margin-bottom:12px;background:#f2f5f8}
-.warning{padding:12px;border-radius:8px;background:#fff4dc;color:#795500;margin:12px 0;font-size:13px}
-.muted{color:#888;font-size:12px}
-canvas{width:100%;height:210px}
-@media(max-width:700px){
- header{padding:16px}header h1{font-size:21px}
+.green{color:#087a26}.red{color:#c34444}
+.section-note{font-size:13px;color:#777;margin:-8px 0 15px}
+hr{border:0;border-top:1px solid #eee;margin:20px 0}
+@media(max-width:750px){
+ header{padding:16px}
+ header h1{font-size:21px}
  main{padding:0 10px;margin:12px auto}
  .panel{padding:15px}
  .hero{grid-template-columns:1fr}
@@ -59,13 +59,14 @@ canvas{width:100%;height:210px}
  .grid{grid-template-columns:1fr}
  .formgrid{grid-template-columns:repeat(2,1fr)}
 }
+@media(max-width:460px){.formgrid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 
 <section id="loginScreen" class="login panel">
-<h1>Bitácora de Fondeo</h1>
-<p style="color:#888">Tu control privado de trading</p>
+<h1>Bitácora de Fondeo Pro</h1>
+<p class="notice">Tu control privado de trading</p>
 <div id="loginMessage" class="notice"></div>
 <label>Correo electrónico</label>
 <input id="email" type="email" placeholder="Tu correo" autocomplete="email">
@@ -92,129 +93,101 @@ canvas{width:100%;height:210px}
 
 <main>
 <div id="message" class="hidden"></div>
-<div id="fxWarning" class="warning hidden"></div>
 
 <section class="panel hero">
 <div>
-<small>BENEFICIO NETO EN EUROS</small>
-<div id="net" class="profit">€0,00</div>
-<div class="notice">Retiros cobrados menos todos los costes registrados</div>
+<small>RESULTADO NETO DE PROP FIRMS</small>
+<div id="net" class="profit">€0.00</div>
+<div class="notice">Retiros cobrados menos todos los costes registrados, convertidos a euros</div>
 </div>
 <div class="metrics">
-<div class="metric"><span>Cuentas compradas</span><strong id="count">0</strong></div>
-<div class="metric"><span>Cuentas con retiros</span><strong id="accountsWithPayout">0</strong></div>
+<div class="metric"><span>Cuentas prop</span><strong id="count">0</strong></div>
 <div class="metric"><span>Cuentas fondeadas</span><strong id="fundedCount">0</strong></div>
-<div class="metric"><span>Inversión total (€)</span><strong id="expenses">€0,00</strong></div>
-<div class="metric"><span>Retiros cobrados (€)</span><strong id="payouts">€0,00</strong></div>
-<div class="metric"><span>Movimientos registrados</span><strong id="movementCount">0</strong></div>
+<div class="metric"><span>Quemadas</span><strong id="burnedCount">0</strong></div>
+<div class="metric"><span>Inversión total</span><strong id="investment">€0.00</strong></div>
 </div>
 </section>
 
 <section class="panel">
-<h2>Registrar una cuenta</h2>
+<div class="actions" style="justify-content:space-between;align-items:center">
+<h2>Empresas de fondeo</h2>
+<button class="secondary" onclick="addFirm()">+ Añadir empresa</button>
+</div>
+<p class="section-note">Añade las empresas con las que trabajas. Podrás crear tus modalidades al registrar cada cuenta.</p>
+<div id="companies" class="grid"></div>
+</section>
+
+<section class="panel">
+<h2>Registrar una cuenta de fondeo</h2>
 <form id="accountForm">
 <div class="formgrid">
-<div class="field"><label>Empresa</label>
-<select id="firm" required></select></div>
-<div class="field"><label>Nombre / número de cuenta</label>
-<input id="accountName" placeholder="Ej. 50K - Cuenta 01" required></div>
-<div class="field"><label>Tamaño de cuenta (USD)</label>
-<input id="accountSize" type="number" min="0" step=".01" value="50000"></div>
+<div class="field"><label>Empresa</label><select id="firm" required></select></div>
+<div class="field"><label>Nombre o número de cuenta</label><input id="accountName" placeholder="Ej. 50K - Cuenta 01" required></div>
+<div class="field"><label>Modalidad</label><input id="accountType" placeholder="Challenge, Flex, Daily Loss, Swing..." required></div>
+<div class="field"><label>Tamaño de cuenta (USD)</label><input id="accountSize" type="number" min="0" step=".01" value="50000" required></div>
 <div class="field"><label>Estado inicial</label>
 <select id="status">
 <option value="evaluation">En evaluación</option>
-<option value="funded">Fondeada</option>
-<option value="burned">Quemada</option>
 <option value="alive">Viva</option>
+<option value="burned">Quemada</option>
 </select></div>
-<div class="field"><label>Fecha de compra</label>
-<input id="purchaseDate" type="date" required></div>
-<div class="field"><label>Coste de compra</label>
-<input id="purchaseCost" type="number" min="0" step=".01" value="0" required></div>
+<div class="field"><label>Fecha de compra</label><input id="purchaseDate" type="date" required></div>
+<div class="field"><label>Coste de compra</label><input id="purchaseCost" type="number" min="0" step=".01" value="0" required></div>
 <div class="field"><label>Moneda del coste</label>
-<select id="purchaseCurrency" onchange="updateFxFields()">
-<option value="USD">USD - Dólares</option>
-<option value="EUR">EUR - Euros</option>
+<select id="purchaseCurrency" onchange="updateFxHelp('purchaseCurrency','purchaseFx')">
+<option value="USD">USD</option><option value="EUR">EUR</option>
 </select></div>
-<div class="field" id="purchaseFxField"><label>Tipo de cambio: 1 USD = EUR</label>
-<input id="purchaseFx" type="number" min=".000001" step=".000001" placeholder="Ej. 0.92"></div>
+<div class="field"><label>Cambio a EUR</label><input id="purchaseFx" type="number" min="0.000001" step=".000001" value="0.92" required><small id="purchaseFxHelp">Euros por cada dólar. Para EUR utiliza 1.</small></div>
 </div>
-<p class="muted">Introduce el cambio USD/EUR aplicado el día de la compra. Si pagaste en euros, selecciona EUR.</p>
 <button type="submit">Guardar cuenta</button>
 </form>
 </section>
 
 <section class="panel">
-<h2>Registrar movimiento</h2>
+<h2>Registrar movimiento de una cuenta prop</h2>
+<p class="section-note">Los importes se guardan como positivos. Un retiro cobrado se contabiliza como ingreso; los demás tipos como gastos.</p>
 <form id="movementForm">
 <div class="formgrid">
-<div class="field"><label>Cuenta</label>
-<select id="movementAccount" required></select></div>
+<div class="field"><label>Cuenta</label><select id="movementAccount" required></select></div>
 <div class="field"><label>Tipo de movimiento</label>
-<select id="movementType" onchange="updateMovementFields()">
+<select id="movementType">
 <option value="test">Prueba</option>
 <option value="activation">Activación / Overlay</option>
 <option value="reset">Reinicio</option>
-<option value="payout">Retiro cobrado</option>
 <option value="other_expense">Otro gasto</option>
-<option value="fondeo">Fondeo de cuenta</option>
+<option value="payout">Retiro realmente cobrado</option>
+<option value="fondeo">Fondeo conseguido</option>
 </select></div>
-<div class="field"><label>Importe</label>
-<input id="amount" type="number" min="0" step=".01" value="0" required></div>
+<div class="field"><label>Importe</label><input id="amount" type="number" min="0.01" step=".01" required></div>
 <div class="field"><label>Moneda</label>
-<select id="movementCurrency" onchange="updateFxFields()">
-<option value="USD">USD - Dólares</option>
-<option value="EUR">EUR - Euros</option>
+<select id="movementCurrency" onchange="updateFxHelp('movementCurrency','movementFx')">
+<option value="USD">USD</option><option value="EUR">EUR</option>
 </select></div>
-<div class="field" id="movementFxField"><label>Tipo de cambio: 1 USD = EUR</label>
-<input id="movementFx" type="number" min=".000001" step=".000001" placeholder="Ej. 0.92"></div>
-<div class="field"><label>Fecha</label>
-<input id="movementDate" type="date" required></div>
-<div class="field"><label>Descripción</label>
-<input id="description" placeholder="Opcional"></div>
+<div class="field"><label>Cambio a EUR</label><input id="movementFx" type="number" min="0.000001" step=".000001" value="0.92" required></div>
+<div class="field"><label>Fecha</label><input id="movementDate" type="date" required></div>
+<div class="field"><label>Descripción</label><input id="description" placeholder="Opcional"></div>
 </div>
-<p class="muted">En un movimiento de tipo Fondeo, el importe puede ser 0. Al guardarlo, la cuenta pasará automáticamente a Fondeada y se guardará la fecha.</p>
 <button type="submit">Guardar movimiento</button>
 </form>
 </section>
 
 <section class="panel">
-<h2>Resumen de inversión y resultados</h2>
-<div class="tablewrap">
-<table>
-<thead><tr><th>CONCEPTO</th><th>IMPORTE EN EUR</th></tr></thead>
-<tbody id="totalsTable"></tbody>
-</table>
-</div>
-</section>
-
-<section class="panel">
 <h2>Resultados por empresa</h2>
-<div id="companies" class="grid"></div>
+<div id="companyResults" class="grid"></div>
 </section>
 
 <section class="panel">
-<h2>Resumen por estado</h2>
+<h2>Todas mis cuentas prop</h2>
 <div class="tablewrap">
 <table>
-<thead><tr><th>ESTADO</th><th>CUENTAS</th><th>INVERSIÓN (€)</th><th>RETIROS (€)</th><th>NETO (€)</th></tr></thead>
-<tbody id="summary"></tbody>
-</table>
-</div>
-</section>
-
-<section class="panel">
-<h2>Todas mis cuentas</h2>
-<div class="tablewrap">
-<table>
-<thead><tr><th>EMPRESA</th><th>CUENTA</th><th>TAMAÑO</th><th>COSTE</th><th>COMPRA</th><th>FONDEO</th><th>ESTADO</th><th>ACCIÓN</th></tr></thead>
+<thead><tr><th>EMPRESA</th><th>CUENTA</th><th>MODALIDAD</th><th>TAMAÑO</th><th>ESTADO</th><th>COMPRA</th><th>FONDEO</th><th>ACCIÓN</th></tr></thead>
 <tbody id="accounts"></tbody>
 </table>
 </div>
 </section>
 
 <section class="panel">
-<h2>Historial de movimientos</h2>
+<h2>Historial de movimientos prop</h2>
 <div class="tablewrap">
 <table>
 <thead><tr><th>FECHA</th><th>EMPRESA</th><th>CUENTA</th><th>TIPO</th><th>IMPORTE</th><th>ACCIÓN</th></tr></thead>
@@ -222,229 +195,344 @@ canvas{width:100%;height:210px}
 </table>
 </div>
 <div class="actions" style="margin-top:15px">
-<button class="secondary" onclick="exportCSV()">Exportar CSV</button>
+<button class="secondary" onclick="exportPropCSV()">Exportar movimientos prop CSV</button>
 </div>
 </section>
+
+<section class="panel">
+<div class="actions" style="justify-content:space-between;align-items:center">
+<h2>Capital propio · Axi MT5</h2>
+<button class="secondary" onclick="addTradingAccount()">+ Añadir cuenta MT5</button>
+</div>
+<p class="section-note">Puedes añadir varias cuentas. Esta sección trabaja en USD porque así está configurada actualmente tu tabla de transacciones.</p>
+<div class="metrics">
+<div class="metric"><span>Cuentas MT5</span><strong id="tradingCount">0</strong></div>
+<div class="metric"><span>Depósitos</span><strong id="deposits">$0.00</strong></div>
+<div class="metric"><span>Retiradas</span><strong id="tradingWithdrawals">$0.00</strong></div>
+<div class="metric"><span>Resultado trading neto</span><strong id="tradingNet">$0.00</strong></div>
+</div>
+<div class="tablewrap" style="margin-top:18px">
+<table>
+<thead><tr><th>BRÓKER</th><th>CUENTA</th><th>MONEDA</th><th>BALANCE INICIAL</th><th>ACCIÓN</th></tr></thead>
+<tbody id="tradingAccounts"></tbody>
+</table>
+</div>
+</section>
+
+<section class="panel">
+<h2>Registrar operación o movimiento MT5</h2>
+<form id="tradingForm">
+<div class="formgrid">
+<div class="field"><label>Cuenta MT5</label><select id="tradingAccountSelect" required></select></div>
+<div class="field"><label>Tipo</label>
+<select id="transactionType">
+<option value="deposit">Depósito</option>
+<option value="withdrawal">Retirada</option>
+<option value="trade_profit">Ganancia</option>
+<option value="trade_loss">Pérdida</option>
+<option value="commission">Comisión</option>
+<option value="swap">Swap</option>
+<option value="other">Otro</option>
+</select></div>
+<div class="field"><label>Importe USD (siempre positivo)</label><input id="transactionAmount" type="number" min="0.01" step=".01" required></div>
+<div class="field"><label>Fecha</label><input id="transactionDate" type="date" required></div>
+<div class="field"><label>Descripción</label><input id="transactionDescription" placeholder="Opcional"></div>
+</div>
+<button type="submit">Guardar operación MT5</button>
+</form>
+</section>
+
+<section class="panel">
+<h2>Registrar resumen mensual de MT5</h2>
+<p class="section-note">Introduce los totales del informe mensual. Se guardan como movimientos agregados, no como operaciones individuales. No importes dos veces el mismo resumen.</p>
+<form id="monthlyForm">
+<div class="formgrid">
+<div class="field"><label>Cuenta MT5</label><select id="monthlyAccount" required></select></div>
+<div class="field"><label>Fecha del informe / mes</label><input id="reportDate" type="date" required></div>
+<div class="field"><label>Depósitos USD</label><input id="reportDeposits" type="number" min="0" step=".01" value="0"></div>
+<div class="field"><label>Retiradas USD</label><input id="reportWithdrawals" type="number" min="0" step=".01" value="0"></div>
+<div class="field"><label>Ganancia bruta USD</label><input id="reportProfit" type="number" min="0" step=".01" value="0"></div>
+<div class="field"><label>Pérdida bruta USD</label><input id="reportLoss" type="number" min="0" step=".01" value="0"></div>
+<div class="field"><label>Comisiones USD</label><input id="reportCommission" type="number" min="0" step=".01" value="0"></div>
+<div class="field"><label>Swaps USD</label><input id="reportSwap" type="number" min="0" step=".01" value="0"></div>
+</div>
+<button type="submit">Guardar resumen mensual</button>
+</form>
+<p class="notice">El esquema actual no tiene campos para guardar balance y equity históricos. Tampoco se importan automáticamente operaciones individuales desde PDF.</p>
+</section>
+
+<section class="panel">
+<h2>Historial de operaciones MT5</h2>
+<div class="tablewrap">
+<table>
+<thead><tr><th>FECHA</th><th>CUENTA</th><th>TIPO</th><th>IMPORTE USD</th><th>DESCRIPCIÓN</th><th>ACCIÓN</th></tr></thead>
+<tbody id="tradingTransactions"></tbody>
+</table>
+</div>
+<div class="actions" style="margin-top:15px">
+<button class="secondary" onclick="exportTradingCSV()">Exportar MT5 CSV</button>
+</div>
+</section>
+
 <footer class="notice" style="text-align:center;padding:20px">
-Bitácora de Fondeo Pro · Conversión EUR con tipos de cambio registrados · Datos privados
+Bitácora de Fondeo Pro · Datos privados · Supabase Free
 </footer>
 </main>
 </div>
 
 <script>
-// CONFIGURACIÓN DE SUPABASE
+// CONFIGURACIÓN SUPABASE
 const SUPABASE_URL = "https://fbwnxoiihxnzfhpmkxpo.supabase.co";
 const SUPABASE_KEY = "sb_publishable__E9AAcN_faF6DmzKy8jlfQ_q4JveGks";
 
 const db = window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
-let user=null, firms=[], accounts=[], movements=[];
+
+let user=null;
+let firms=[];
+let accounts=[];
+let movements=[];
+let tradingAccounts=[];
+let tradingTransactions=[];
 
 const $=id=>document.getElementById(id);
-const escapeHTML=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-const moneyEUR=n=>new Intl.NumberFormat("es-ES",{style:"currency",currency:"EUR"}).format(Number(n)||0);
-const moneyUSD=n=>new Intl.NumberFormat("en-US",{style:"currency",currency:"USD"}).format(Number(n)||0);
 
-const statuses={
+const money=(n,currency="USD")=>
+ new Intl.NumberFormat("es-ES",{style:"currency",currency}).format(Number(n)||0);
+
+const escapeHTML=s=>String(s??"").replace(/[&<>"']/g,c=>({
+ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+}[c]));
+
+const statusNames={
  evaluation:"En evaluación",
  funded:"Fondeada",
  burned:"Quemada",
  alive:"Viva"
 };
-const types={
+
+const movementNames={
  test:"Prueba",
- activation:"Activación / Overlay",
+ activation:"Activación",
  reset:"Reinicio",
  payout:"Retiro cobrado",
  other_expense:"Otro gasto",
- fondeo:"Fondeo"
+ fondeo:"Fondeo conseguido"
 };
 
-function localDate(){
- const d=new Date();
- const offset=d.getTimezoneOffset();
- return new Date(d.getTime()-offset*60000).toISOString().slice(0,10);
-}
+const transactionNames={
+ deposit:"Depósito",
+ withdrawal:"Retirada",
+ trade_profit:"Ganancia",
+ trade_loss:"Pérdida",
+ commission:"Comisión",
+ swap:"Swap",
+ other:"Otro"
+};
+
 function notify(msg){
  $("message").textContent=msg;
  $("message").classList.remove("hidden");
  window.scrollTo({top:0,behavior:"smooth"});
 }
+
 function errorMessage(err){
  console.error(err);
  notify(err.message||"Ha ocurrido un error.");
 }
-function getFx(currency,field){
- if(currency==="EUR")return 1;
- const value=Number($(field).value);
- return value>0?value:null;
-}
-function toEUR(amount,currency,fx){
- if(currency==="EUR")return Number(amount)||0;
- if(currency==="USD"&&Number(fx)>0)return Number(amount)*Number(fx);
- return null;
-}
-function accountCostEUR(a){
- return toEUR(a.purchase_cost||0,a.purchase_currency||"USD",a.purchase_fx_to_eur);
-}
-function movementEUR(m){
- return toEUR(m.amount,m.currency||"USD",m.fx_to_eur);
-}
-function isExpense(m){
- return !["payout","fondeo"].includes(m.movement_type);
-}
-function sumEUR(items,converter){
- let total=0;
- items.forEach(item=>{
-  const v=converter(item);
-  if(v!==null)total+=v;
- });
- return total;
-}
-function missingFxCount(){
- let n=0;
- accounts.forEach(a=>{
-  if(Number(a.purchase_cost)>0&&accountCostEUR(a)===null)n++;
- });
- movements.forEach(m=>{
-  if(Number(m.amount)>0&&movementEUR(m)===null)n++;
- });
- return n;
-}
-function firmName(id){
- return firms.find(f=>f.id===id)?.name||"Empresa";
-}
-function accountName(id){
- return accounts.find(a=>a.id===id)?.account_name||"Cuenta";
+
+function today(){
+ return new Date().toISOString().slice(0,10);
 }
 
+function setDates(){
+ $("purchaseDate").value=today();
+ $("movementDate").value=today();
+ $("transactionDate").value=today();
+ $("reportDate").value=today();
+}
+
+function updateFxHelp(currencyId,fxId){
+ const currency=$(currencyId).value;
+ $(fxId).value=currency==="EUR"?"1":"0.92";
+}
+
+function fxValue(currency,rate){
+ if(currency==="EUR")return 1;
+ const n=Number(rate);
+ if(!Number.isFinite(n)||n<=0)throw new Error("Introduce un cambio válido a euros.");
+ return n;
+}
+
+function amountInEUR(amount,currency,rate){
+ return Number(amount||0)*fxValue(currency,rate);
+}
+
+// AUTENTICACIÓN
 async function login(){
  $("loginMessage").textContent="Comprobando acceso...";
  const {error}=await db.auth.signInWithPassword({
   email:$("email").value.trim(),
   password:$("password").value
  });
- if(error){$("loginMessage").textContent=error.message;return;}
+ if(error){
+  $("loginMessage").textContent=error.message;
+  return;
+ }
  await checkSession();
 }
+
 async function register(){
- $("loginMessage").textContent="Creando cuenta...";
+ $("loginMessage").textContent="Creando usuario...";
  const {error}=await db.auth.signUp({
   email:$("email").value.trim(),
   password:$("password").value
  });
- if(error){$("loginMessage").textContent="Error: "+error.message;return;}
- $("loginMessage").textContent="Registro enviado. Revisa tu correo para confirmar la cuenta.";
+ $("loginMessage").textContent=error
+  ? "Error: "+error.message
+  : "Registro enviado. Si Supabase solicita confirmación, revisa tu correo.";
 }
+
 async function resetPassword(){
  const email=$("email").value.trim();
- if(!email){$("loginMessage").textContent="Escribe primero tu correo.";return;}
+ if(!email){
+  $("loginMessage").textContent="Escribe primero tu correo.";
+  return;
+ }
  const {error}=await db.auth.resetPasswordForEmail(email);
- $("loginMessage").textContent=error?error.message:"Te hemos enviado un correo para restablecer tu contraseña.";
+ $("loginMessage").textContent=error
+  ? error.message
+  : "Te hemos enviado un correo para restablecer tu contraseña.";
 }
+
 async function logout(){
  await db.auth.signOut();
  location.reload();
 }
+
 async function checkSession(){
  const {data,error}=await db.auth.getSession();
- if(error){$("loginMessage").textContent=error.message;return;}
+ if(error){
+  $("loginMessage").textContent=error.message;
+  return;
+ }
  if(data.session){
   user=data.session.user;
   $("loginScreen").classList.add("hidden");
   $("app").classList.remove("hidden");
-  $("userEmail").textContent=user.email;
+  $("userEmail").textContent=user.email||"";
   await loadData();
  }
 }
+
+// CARGA DE DATOS
 async function loadData(){
  try{
-  const [f,a,m]=await Promise.all([
+  const results=await Promise.all([
    db.from("firms").select("*").order("name"),
    db.from("accounts").select("*").order("created_at",{ascending:false}),
-   db.from("movements").select("*").order("movement_date",{ascending:false})
+   db.from("movements").select("*").order("movement_date",{ascending:false}),
+   db.from("trading_accounts").select("*").order("created_at",{ascending:false}),
+   db.from("trading_transactions").select("*").order("transaction_date",{ascending:false})
   ]);
-  if(f.error)throw f.error;
-  if(a.error)throw a.error;
-  if(m.error)throw m.error;
-  firms=f.data||[];
-  accounts=a.data||[];
-  movements=m.data||[];
+
+  for(const result of results){
+   if(result.error)throw result.error;
+  }
+
+  firms=results[0].data||[];
+  accounts=results[1].data||[];
+  movements=results[2].data||[];
+  tradingAccounts=results[3].data||[];
+  tradingTransactions=results[4].data||[];
+
   render();
- }catch(e){errorMessage(e);}
+ }catch(err){
+  errorMessage(err);
+ }
 }
 
-function updateFxFields(){
- const pc=$("purchaseCurrency").value;
- $("purchaseFxField").classList.toggle("hidden",pc==="EUR");
- const mc=$("movementCurrency").value;
- $("movementFxField").classList.toggle("hidden",mc==="EUR");
+// EMPRESAS
+async function addFirm(){
+ const name=prompt("Nombre de la nueva empresa de fondeo:");
+ if(!name||!name.trim())return;
+
+ const {error}=await db.from("firms").insert({
+  owner_id:user.id,
+  name:name.trim()
+ });
+
+ if(error){errorMessage(error);return;}
+ await loadData();
+ notify("Empresa añadida.");
 }
-function updateMovementFields(){
- const isFunding=$("movementType").value==="fondeo";
- $("amount").required=true;
- $("amount").min=isFunding?"0":"0.01";
- if(isFunding)$("amount").value="0";
-}
+
+// CUENTAS PROP
 async function addAccount(e){
  e.preventDefault();
  try{
   const currency=$("purchaseCurrency").value;
-  const cost=Number($("purchaseCost").value)||0;
-  const fx=getFx(currency,"purchaseFx");
-  if(currency==="USD"&&cost>0&&!fx){
-   throw new Error("Introduce el tipo de cambio USD/EUR para el coste de compra.");
-  }
-  const {error}=await db.from("accounts").insert({
+  const rate=fxValue(currency,$("purchaseFx").value);
+
+  const payload={
    owner_id:user.id,
    firm_id:$("firm").value,
    account_name:$("accountName").value.trim(),
-   account_size:Number($("accountSize").value)||0,
+   account_type:$("accountType").value.trim(),
+   account_size:Number($("accountSize").value),
    status:$("status").value,
    purchase_date:$("purchaseDate").value,
-   purchase_cost:cost,
+   purchase_cost:Number($("purchaseCost").value),
    purchase_currency:currency,
-   purchase_fx_to_eur:fx
-  });
+   purchase_fx_to_eur:rate
+  };
+
+  const {error}=await db.from("accounts").insert(payload);
   if(error)throw error;
+
   $("accountForm").reset();
   $("accountSize").value="50000";
   $("purchaseCost").value="0";
+  $("purchaseCurrency").value="USD";
+  $("purchaseFx").value="0.92";
   setDates();
-  updateFxFields();
   await loadData();
-  notify("Cuenta guardada correctamente.");
+  notify("Cuenta de fondeo guardada correctamente.");
  }catch(err){errorMessage(err);}
 }
+
+// MOVIMIENTOS PROP
 async function addMovement(e){
  e.preventDefault();
  try{
-  const type=$("movementType").value;
   const currency=$("movementCurrency").value;
+  const rate=fxValue(currency,$("movementFx").value);
   const amount=Number($("amount").value);
-  const fx=getFx(currency,"movementFx");
-  if(!Number.isFinite(amount)||amount<0)throw new Error("Introduce un importe válido.");
-  if(type!=="fondeo"&&amount<=0)throw new Error("El importe debe ser mayor que cero.");
-  if(currency==="USD"&&amount>0&&!fx)throw new Error("Introduce el tipo de cambio USD/EUR.");
-  const {error}=await db.from("movements").insert({
+
+  if(amount<=0)throw new Error("El importe debe ser mayor que cero.");
+
+  const payload={
    owner_id:user.id,
    account_id:$("movementAccount").value,
-   movement_type:type,
+   movement_type:$("movementType").value,
    amount:amount,
-   currency:currency,
-   fx_to_eur:fx,
    movement_date:$("movementDate").value,
-   description:$("description").value.trim()
-  });
+   description:$("description").value.trim(),
+   currency:currency,
+   fx_to_eur:rate
+  };
+
+  const {error}=await db.from("movements").insert(payload);
   if(error)throw error;
+
   $("movementForm").reset();
-  $("amount").value="0";
+  $("movementCurrency").value="USD";
+  $("movementFx").value="0.92";
   setDates();
-  updateFxFields();
-  updateMovementFields();
   await loadData();
-  notify(type==="fondeo"?"Fondeo registrado. La cuenta ha pasado a estado Fondeada.":"Movimiento guardado correctamente.");
+  notify("Movimiento guardado correctamente.");
  }catch(err){errorMessage(err);}
 }
+
 async function deleteAccount(id){
  if(!confirm("¿Eliminar esta cuenta y todos sus movimientos?"))return;
  const {error}=await db.from("accounts").delete().eq("id",id);
@@ -452,6 +540,7 @@ async function deleteAccount(id){
  await loadData();
  notify("Cuenta eliminada.");
 }
+
 async function deleteMovement(id){
  if(!confirm("¿Eliminar este movimiento?"))return;
  const {error}=await db.from("movements").delete().eq("id",id);
@@ -459,148 +548,376 @@ async function deleteMovement(id){
  await loadData();
  notify("Movimiento eliminado.");
 }
+
 async function changeStatus(id,status){
  const {error}=await db.from("accounts").update({status}).eq("id",id);
  if(error){errorMessage(error);return;}
  await loadData();
 }
-async function addFirm(){
- const name=prompt("Nombre de la nueva empresa:");
- if(!name||!name.trim())return;
- const {error}=await db.from("firms").insert({owner_id:user.id,name:name.trim()});
- if(error){errorMessage(error);return;}
- await loadData();
- notify("Empresa añadida.");
-}
 
-function render(){
- const expensesMovements=movements.filter(isExpense);
- const totalPurchases=sumEUR(accounts,accountCostEUR);
- const totalMovementCosts=sumEUR(expensesMovements,movementEUR);
- const totalInvestment=totalPurchases+totalMovementCosts;
- const payouts=sumEUR(movements.filter(m=>m.movement_type==="payout"),movementEUR);
- const net=payouts-totalInvestment;
+// CUENTAS MT5
+async function addTradingAccount(){
+ const broker=prompt("Nombre del bróker:","Axi");
+ if(!broker||!broker.trim())return;
 
- $("net").textContent=moneyEUR(net);
- $("net").style.color=net>=0?"#087a26":"#c34444";
- $("count").textContent=accounts.length;
- $("accountsWithPayout").textContent=new Set(movements.filter(m=>m.movement_type==="payout").map(m=>m.account_id)).size;
- $("fundedCount").textContent=accounts.filter(a=>a.status==="funded").length;
- $("expenses").textContent=moneyEUR(totalInvestment);
- $("payouts").textContent=moneyEUR(payouts);
- $("movementCount").textContent=movements.length;
+ const accountName=prompt("Nombre o número de la cuenta MT5:");
+ if(!accountName||!accountName.trim())return;
 
- const missing=missingFxCount();
- if(missing){
-  $("fxWarning").textContent=`Hay ${missing} registro(s) sin tipo de cambio guardado. No se incluyen en los totales en euros hasta que se complete su conversión.`;
-  $("fxWarning").classList.remove("hidden");
- }else{
-  $("fxWarning").classList.add("hidden");
+ const balanceText=prompt("Balance inicial en USD:","0");
+ if(balanceText===null)return;
+
+ const initialBalance=Number(balanceText);
+ if(!Number.isFinite(initialBalance)||initialBalance<0){
+  notify("El balance inicial debe ser cero o superior.");
+  return;
  }
 
- $("firm").innerHTML=firms.map(f=>`<option value="${f.id}">${escapeHTML(f.name)}</option>`).join("");
- $("movementAccount").innerHTML=accounts.map(a=>`<option value="${a.id}">${escapeHTML(firmName(a.firm_id))} - ${escapeHTML(a.account_name)}</option>`).join("");
+ const {error}=await db.from("trading_accounts").insert({
+  owner_id:user.id,
+  broker:broker.trim(),
+  account_name:accountName.trim(),
+  currency:"USD",
+  initial_balance:initialBalance
+ });
 
- $("totalsTable").innerHTML=`
- <tr><td>Coste de compra de cuentas</td><td>${moneyEUR(totalPurchases)}</td></tr>
- <tr><td>Pruebas, activaciones, reinicios y otros gastos</td><td>${moneyEUR(totalMovementCosts)}</td></tr>
- <tr><td><strong>Inversión total</strong></td><td><strong>${moneyEUR(totalInvestment)}</strong></td></tr>
- <tr><td>Retiros efectivamente cobrados</td><td>${moneyEUR(payouts)}</td></tr>
- <tr><td><strong>Beneficio neto</strong></td><td class="${net>=0?"green":"red"}"><strong>${moneyEUR(net)}</strong></td></tr>`;
+ if(error){errorMessage(error);return;}
+ await loadData();
+ notify("Cuenta MT5 añadida.");
+}
+
+// TRANSACCIONES MT5
+async function addTradingTransaction(e){
+ e.preventDefault();
+ try{
+  const amount=Number($("transactionAmount").value);
+  if(amount<=0)throw new Error("El importe debe ser mayor que cero.");
+
+  const {error}=await db.from("trading_transactions").insert({
+   owner_id:user.id,
+   trading_account_id:$("tradingAccountSelect").value,
+   transaction_type:$("transactionType").value,
+   amount:amount,
+   currency:"USD",
+   transaction_date:$("transactionDate").value,
+   description:$("transactionDescription").value.trim(),
+   external_id:null
+  });
+
+  if(error)throw error;
+
+  $("tradingForm").reset();
+  setDates();
+  await loadData();
+  notify("Movimiento MT5 guardado.");
+ }catch(err){errorMessage(err);}
+}
+
+// RESUMEN MENSUAL MT5
+async function addMonthlySummary(e){
+ e.preventDefault();
+ try{
+  const accountId=$("monthlyAccount").value;
+  const date=$("reportDate").value;
+  const month=date.slice(0,7);
+
+  const items=[
+   ["deposit","Depósitos",Number($("reportDeposits").value)||0],
+   ["withdrawal","Retiradas",Number($("reportWithdrawals").value)||0],
+   ["trade_profit","Ganancia bruta",Number($("reportProfit").value)||0],
+   ["trade_loss","Pérdida bruta",Number($("reportLoss").value)||0],
+   ["commission","Comisiones",Number($("reportCommission").value)||0],
+   ["swap","Swaps",Number($("reportSwap").value)||0]
+  ];
+
+  if(!items.some(item=>item[2]>0)){
+   throw new Error("Introduce al menos un importe del informe.");
+  }
+
+  for(const [type,label,amount] of items){
+   if(amount<=0)continue;
+
+   const externalId="monthly-"+accountId+"-"+month+"-"+type;
+
+   const {data:existing,error:checkError}=await db
+    .from("trading_transactions")
+    .select("id")
+    .eq("external_id",externalId)
+    .limit(1);
+
+   if(checkError)throw checkError;
+
+   if(existing&&existing.length){
+    throw new Error("Ya existe un resumen mensual registrado para "+month+". No se ha añadido este resumen.");
+   }
+  }
+
+  const rows=items
+   .filter(item=>item[2]>0)
+   .map(([type,label,amount])=>({
+    owner_id:user.id,
+    trading_account_id:accountId,
+    transaction_type:type,
+    amount:amount,
+    currency:"USD",
+    transaction_date:date,
+    description:"Resumen mensual MT5: "+label+" ("+month+")",
+    external_id:"monthly-"+accountId+"-"+month+"-"+type
+   }));
+
+  const {error}=await db.from("trading_transactions").insert(rows);
+  if(error)throw error;
+
+  $("monthlyForm").reset();
+  $("reportDeposits").value="0";
+  $("reportWithdrawals").value="0";
+  $("reportProfit").value="0";
+  $("reportLoss").value="0";
+  $("reportCommission").value="0";
+  $("reportSwap").value="0";
+  setDates();
+  await loadData();
+  notify("Resumen mensual guardado. Recuerda que se ha registrado como totales, no como operaciones individuales.");
+ }catch(err){errorMessage(err);}
+}
+
+// CÁLCULOS
+function accountCostsEUR(account){
+ let total=amountInEUR(
+  account.purchase_cost,
+  account.purchase_currency||"USD",
+  account.purchase_fx_to_eur
+ );
+
+ const accountMovements=movements.filter(m=>m.account_id===account.id);
+ for(const m of accountMovements){
+  if(m.movement_type==="payout"||m.movement_type==="fondeo")continue;
+  total+=amountInEUR(m.amount,m.currency||"USD",m.fx_to_eur);
+ }
+ return total;
+}
+
+function accountPayoutsEUR(account){
+ return movements
+  .filter(m=>m.account_id===account.id&&m.movement_type==="payout")
+  .reduce((sum,m)=>sum+amountInEUR(m.amount,m.currency||"USD",m.fx_to_eur),0);
+}
+
+function accountNetEUR(account){
+ return accountPayoutsEUR(account)-accountCostsEUR(account);
+}
+
+function tradingTotals(){
+ const sumType=type=>tradingTransactions
+  .filter(t=>t.transaction_type===type)
+  .reduce((s,t)=>s+Number(t.amount),0);
+
+ const profit=sumType("trade_profit");
+ const loss=sumType("trade_loss");
+ const commission=sumType("commission");
+ const swap=sumType("swap");
+ const deposits=sumType("deposit");
+ const withdrawals=sumType("withdrawal");
+
+ return {
+  profit,loss,commission,swap,deposits,withdrawals,
+  net:profit-loss-commission-swap
+ };
+}
+
+// REPRESENTACIÓN
+function render(){
+ const firmName=id=>firms.find(f=>f.id===id)?.name||"Empresa";
+ const accountName=id=>accounts.find(a=>a.id===id)?.account_name||"Cuenta";
+ const tradingName=id=>tradingAccounts.find(a=>a.id===id)?.account_name||"Cuenta MT5";
+
+ const investment=accounts.reduce((s,a)=>s+accountCostsEUR(a),0);
+ const payouts=accounts.reduce((s,a)=>s+accountPayoutsEUR(a),0);
+ const net=payouts-investment;
+
+ $("net").textContent=money(net,"EUR");
+ $("net").className="profit "+(net>=0?"green":"red");
+ $("count").textContent=accounts.length;
+ $("fundedCount").textContent=accounts.filter(a=>a.status==="funded").length;
+ $("burnedCount").textContent=accounts.filter(a=>a.status==="burned").length;
+ $("investment").textContent=money(investment,"EUR");
+
+ $("firm").innerHTML=firms.map(f=>
+  `<option value="${f.id}">${escapeHTML(f.name)}</option>`
+ ).join("");
+
+ $("movementAccount").innerHTML=accounts.map(a=>
+  `<option value="${a.id}">${escapeHTML(firmName(a.firm_id))} - ${escapeHTML(a.account_name)}</option>`
+ ).join("");
 
  $("companies").innerHTML=firms.map(f=>{
-  const group=accounts.filter(a=>a.firm_id===f.id);
-  const ids=group.map(a=>a.id);
-  const ms=movements.filter(m=>ids.includes(m.account_id));
-  const purchases=sumEUR(group,accountCostEUR);
-  const costs=sumEUR(ms.filter(isExpense),movementEUR);
-  const paid=sumEUR(ms.filter(m=>m.movement_type==="payout"),movementEUR);
-  const investment=purchases+costs;
-  const result=paid-investment;
-  const withPayout=new Set(ms.filter(m=>m.movement_type==="payout").map(m=>m.account_id)).size;
-  return `<article class="company">
-   <h3>${escapeHTML(f.name)} <small style="float:right;color:#888">${group.length} cuentas</small></h3>
-   <div class="companystats">
-    <div><strong>${moneyEUR(investment)}</strong><small>Invertido</small></div>
-    <div><strong>${moneyEUR(paid)}</strong><small>Retiros cobrados</small></div>
-    <div><strong class="${result>=0?"green":"red"}">${moneyEUR(result)}</strong><small>Beneficio neto</small></div>
-    <div><strong>${withPayout}</strong><small>Cuentas con retiros</small></div>
-   </div>
-   <p class="muted">${group.filter(a=>a.status==="funded").length} fondeadas · ${group.filter(a=>a.status==="burned").length} quemadas · ${group.filter(a=>a.status==="evaluation").length} en evaluación</p>
-  </article>`;
- }).join("")+`<article class="company" style="display:flex;align-items:center;justify-content:center">
- <button class="secondary" onclick="addFirm()">+ Añadir empresa</button></article>`;
+  const list=accounts.filter(a=>a.firm_id===f.id);
+  const costs=list.reduce((s,a)=>s+accountCostsEUR(a),0);
+  const received=list.reduce((s,a)=>s+accountPayoutsEUR(a),0);
+  const result=received-costs;
+  const funded=list.filter(a=>a.status==="funded").length;
+  const burned=list.filter(a=>a.status==="burned").length;
 
- $("summary").innerHTML=Object.entries(statuses).map(([state,label])=>{
-  const group=accounts.filter(a=>a.status===state);
-  const ids=group.map(a=>a.id);
-  const ms=movements.filter(m=>ids.includes(m.account_id));
-  const investment=sumEUR(group,accountCostEUR)+sumEUR(ms.filter(isExpense),movementEUR);
-  const paid=sumEUR(ms.filter(m=>m.movement_type==="payout"),movementEUR);
-  const result=paid-investment;
-  return `<tr><td>${label}</td><td>${group.length}</td><td>${moneyEUR(investment)}</td><td>${moneyEUR(paid)}</td><td class="${result>=0?"green":"red"}">${moneyEUR(result)}</td></tr>`;
- }).join("");
+  return `<div class="company">
+   <h3>${escapeHTML(f.name)}</h3>
+   <p>Cuentas: <strong>${list.length}</strong></p>
+   <p>Fondeadas: <strong>${funded}</strong> · Quemadas: <strong>${burned}</strong></p>
+   <p>Inversión: <strong>${money(costs,"EUR")}</strong></p>
+   <p>Retiros cobrados: <strong>${money(received,"EUR")}</strong></p>
+   <p>Resultado: <strong class="${result>=0?"green":"red"}">${money(result,"EUR")}</strong></p>
+  </div>`;
+ }).join("")||"<p>Aún no has añadido empresas.</p>";
 
- $("accounts").innerHTML=accounts.map(a=>`
- <tr>
- <td>${escapeHTML(firmName(a.firm_id))}</td>
- <td>${escapeHTML(a.account_name)}</td>
- <td>${moneyUSD(a.account_size)}</td>
- <td>${moneyEUR(accountCostEUR(a)??0)} <small>${escapeHTML(a.purchase_currency||"USD")}</small></td>
- <td>${a.purchase_date||""}</td>
- <td>${a.funded_date||"—"}</td>
- <td><select onchange="changeStatus('${a.id}',this.value)">
- ${Object.entries(statuses).map(([v,n])=>`<option value="${v}" ${a.status===v?"selected":""}>${n}</option>`).join("")}
- </select></td>
- <td><button class="danger" onclick="deleteAccount('${a.id}')">Eliminar</button></td>
- </tr>`).join("")||"<tr><td colspan='8'>Todavía no hay cuentas.</td></tr>";
+ $("companyResults").innerHTML=firms.map(f=>{
+  const list=accounts.filter(a=>a.firm_id===f.id);
+  const costs=list.reduce((s,a)=>s+accountCostsEUR(a),0);
+  const received=list.reduce((s,a)=>s+accountPayoutsEUR(a),0);
+  const result=received-costs;
+  return `<div class="company">
+   <h3>${escapeHTML(f.name)}</h3>
+   <p>${list.length} cuentas registradas</p>
+   <p>Resultado neto: <strong class="${result>=0?"green":"red"}">${money(result,"EUR")}</strong></p>
+  </div>`;
+ }).join("")||"<p>Sin resultados todavía.</p>";
 
- $("movements").innerHTML=movements.map(m=>`
- <tr>
- <td>${m.movement_date}</td>
- <td>${escapeHTML(firmName(accounts.find(a=>a.id===m.account_id)?.firm_id))}</td>
- <td>${escapeHTML(accountName(m.account_id))}</td>
- <td>${types[m.movement_type]||m.movement_type}</td>
- <td>${Number(m.amount).toFixed(2)} ${escapeHTML(m.currency||"USD")}</td>
- <td><button class="danger" onclick="deleteMovement('${m.id}')">Eliminar</button></td>
- </tr>`).join("")||"<tr><td colspan='6'>Todavía no hay movimientos.</td></tr>";
+ $("accounts").innerHTML=accounts.map(a=>{
+  const firm=firmName(a.firm_id);
+  const statusOptions=["evaluation","funded","burned","alive"].map(s=>
+   `<option value="${s}" ${a.status===s?"selected":""}>${statusNames[s]}</option>`
+  ).join("");
+
+  return `<tr>
+   <td>${escapeHTML(firm)}</td>
+   <td>${escapeHTML(a.account_name)}</td>
+   <td>${escapeHTML(a.account_type||"")}</td>
+   <td>${money(a.account_size,"USD")}</td>
+   <td><select onchange="changeStatus('${a.id}',this.value)">${statusOptions}</select></td>
+   <td>${escapeHTML(a.purchase_date||"")}</td>
+   <td>${escapeHTML(a.funded_date||"Pendiente")}</td>
+   <td><button class="danger" onclick="deleteAccount('${a.id}')">Eliminar</button></td>
+  </tr>`;
+ }).join("")||"<tr><td colspan='8'>Todavía no hay cuentas.</td></tr>";
+
+ $("movements").innerHTML=movements.map(m=>{
+  const a=accounts.find(x=>x.id===m.account_id);
+  const label=movementNames[m.movement_type]||m.movement_type;
+  return `<tr>
+   <td>${escapeHTML(m.movement_date)}</td>
+   <td>${escapeHTML(firmName(a?.firm_id))}</td>
+   <td>${escapeHTML(accountName(m.account_id))}</td>
+   <td>${escapeHTML(label)}</td>
+   <td>${money(m.amount,m.currency||"USD")}</td>
+   <td><button class="danger" onclick="deleteMovement('${m.id}')">Eliminar</button></td>
+  </tr>`;
+ }).join("")||"<tr><td colspan='6'>Todavía no hay movimientos.</td></tr>";
+
+ // Cuentas de trading
+ $("tradingCount").textContent=tradingAccounts.length;
+
+ $("tradingAccounts").innerHTML=tradingAccounts.map(a=>`
+  <tr>
+   <td>${escapeHTML(a.broker)}</td>
+   <td>${escapeHTML(a.account_name)}</td>
+   <td>${escapeHTML(a.currency)}</td>
+   <td>${money(a.initial_balance,a.currency||"USD")}</td>
+   <td><button class="danger" onclick="deleteTradingAccount('${a.id}')">Eliminar</button></td>
+  </tr>
+ `).join("")||"<tr><td colspan='5'>Añade tu primera cuenta MT5.</td></tr>";
+
+ const options=tradingAccounts.map(a=>
+  `<option value="${a.id}">${escapeHTML(a.broker)} - ${escapeHTML(a.account_name)}</option>`
+ ).join("");
+
+ $("tradingAccountSelect").innerHTML=options;
+ $("monthlyAccount").innerHTML=options;
+
+ const totals=tradingTotals();
+ $("deposits").textContent=money(totals.deposits);
+ $("tradingWithdrawals").textContent=money(totals.withdrawals);
+ $("tradingNet").textContent=money(totals.net);
+ $("tradingNet").className=totals.net>=0?"green":"red";
+
+ $("tradingTransactions").innerHTML=tradingTransactions.map(t=>`
+  <tr>
+   <td>${escapeHTML(t.transaction_date)}</td>
+   <td>${escapeHTML(tradingName(t.trading_account_id))}</td>
+   <td>${escapeHTML(transactionNames[t.transaction_type]||t.transaction_type)}</td>
+   <td>${money(t.amount,t.currency||"USD")}</td>
+   <td>${escapeHTML(t.description||"")}</td>
+   <td><button class="danger" onclick="deleteTradingTransaction('${t.id}')">Eliminar</button></td>
+  </tr>
+ `).join("")||"<tr><td colspan='6'>Todavía no hay operaciones MT5.</td></tr>";
 }
 
-function setDates(){
- const today=localDate();
- $("purchaseDate").value=today;
- $("movementDate").value=today;
+// BORRADOS MT5
+async function deleteTradingAccount(id){
+ if(!confirm("¿Eliminar esta cuenta MT5 y sus transacciones?"))return;
+ const {error}=await db.from("trading_accounts").delete().eq("id",id);
+ if(error){errorMessage(error);return;}
+ await loadData();
+ notify("Cuenta MT5 eliminada.");
 }
-function exportCSV(){
- const rows=[
- ["Fecha","Empresa","Cuenta","Tipo","Importe","Moneda","Tipo de cambio EUR","Importe EUR","Descripción"],
- ...movements.map(m=>[
-  m.movement_date,
-  firmName(accounts.find(a=>a.id===m.account_id)?.firm_id),
-  accountName(m.account_id),
-  types[m.movement_type]||m.movement_type,
-  m.amount,
-  m.currency||"USD",
-  m.fx_to_eur??"",
-  movementEUR(m)??"",
-  m.description||""
- ])
- ];
- const csv=rows.map(r=>r.map(v=>'"'+String(v??"").replace(/"/g,'""')+'"').join(";")).join("\n");
+
+async function deleteTradingTransaction(id){
+ if(!confirm("¿Eliminar esta operación MT5?"))return;
+ const {error}=await db.from("trading_transactions").delete().eq("id",id);
+ if(error){errorMessage(error);return;}
+ await loadData();
+ notify("Operación eliminada.");
+}
+
+// EXPORTACIONES CSV
+function downloadCSV(filename,rows){
+ const csv=rows.map(row=>
+  row.map(value=>'"'+String(value??"").replace(/"/g,'""')+'"').join(";")
+ ).join("\n");
+
  const blob=new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8"});
  const url=URL.createObjectURL(blob);
  const link=document.createElement("a");
  link.href=url;
- link.download="bitacora-fondeo.csv";
+ link.download=filename;
  link.click();
  URL.revokeObjectURL(url);
 }
 
+function exportPropCSV(){
+ const rows=[
+  ["Fecha","Empresa","Cuenta","Tipo","Importe","Moneda","Cambio a EUR","Descripción"],
+  ...movements.map(m=>{
+   const a=accounts.find(x=>x.id===m.account_id);
+   const f=firms.find(x=>x.id===a?.firm_id);
+   return [
+    m.movement_date,f?.name,a?.account_name,
+    movementNames[m.movement_type]||m.movement_type,
+    m.amount,m.currency,m.fx_to_eur,m.description
+   ];
+  })
+ ];
+ downloadCSV("bitacora-prop-firms.csv",rows);
+}
+
+function exportTradingCSV(){
+ const rows=[
+  ["Fecha","Cuenta","Tipo","Importe USD","Descripción","Referencia"],
+  ...tradingTransactions.map(t=>{
+   const a=tradingAccounts.find(x=>x.id===t.trading_account_id);
+   return [
+    t.transaction_date,a?.account_name,
+    transactionNames[t.transaction_type]||t.transaction_type,
+    t.amount,t.description,t.external_id
+   ];
+  })
+ ];
+ downloadCSV("bitacora-mt5.csv",rows);
+}
+
+// EVENTOS
 $("accountForm").addEventListener("submit",addAccount);
 $("movementForm").addEventListener("submit",addMovement);
+$("tradingForm").addEventListener("submit",addTradingTransaction);
+$("monthlyForm").addEventListener("submit",addMonthlySummary);
+
 setDates();
-updateFxFields();
-updateMovementFields();
 checkSession();
 </script>
 </body>

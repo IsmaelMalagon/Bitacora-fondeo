@@ -17,38 +17,38 @@ button.danger{background:#c74444}
 header{padding:20px 4%;background:white;border-bottom:1px solid #ddd;display:flex;align-items:center;justify-content:space-between;gap:15px;flex-wrap:wrap}
 header h1{font-size:26px;margin:0}
 header small{color:#888}
-main{max-width:1250px;margin:25px auto;padding:0 18px}
+main{max-width:1350px;margin:25px auto;padding:0 18px}
 .panel{background:white;border:1px solid #e3e3e3;border-radius:13px;padding:22px;margin-bottom:18px}
 h2{font-size:20px;margin:0 0 20px}
-.hero{display:grid;grid-template-columns:1fr 1fr;gap:25px;align-items:center}
+h3{margin-top:0}
+.hero{display:grid;grid-template-columns:1fr 1.5fr;gap:25px;align-items:center}
 .profit{font-size:clamp(38px,6vw,62px);font-weight:bold;color:#087a26;margin:8px 0}
-.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
 .metric{padding:15px;background:#f7f8fa;border-radius:9px}
 .metric span{display:block;color:#777;font-size:12px}
 .metric strong{display:block;font-size:20px;margin-top:7px}
 .green{color:#087a26}.red{color:#c34444}
 .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:15px}
-.field label{display:block;font-size:12px;color:#777;margin-bottom:6px}
+.field label{display:block;font-size:12px;color:#555;margin-bottom:6px}
 .field input,.field select{width:100%;padding:11px;border:1px solid #ddd;border-radius:7px;background:white}
 .formgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:15px}
 .company{border:1px solid #e8e8e8;border-radius:10px;padding:16px}
-.company h3{margin:0 0 14px}
 .companystats{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
 .companystats strong{display:block;font-size:17px}
 .companystats small{color:#888}
-.bar{height:9px;background:#eee;border-radius:8px;margin:13px 0;overflow:hidden}
-.bar span{display:block;height:100%;background:#12833b}
 .tablewrap{overflow-x:auto}
-table{width:100%;border-collapse:collapse;min-width:720px;font-size:13px}
+table{width:100%;border-collapse:collapse;min-width:850px;font-size:13px}
 th,td{text-align:left;padding:12px 9px;border-bottom:1px solid #eee}
 th{color:#888;font-size:11px}
-.actions{display:flex;gap:10px;flex-wrap:wrap}
+.actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
 .login{max-width:430px;margin:9vh auto;padding:25px}
 .login input{width:100%;padding:13px;border:1px solid #ddd;border-radius:8px;margin:8px 0 16px}
 .login button{width:100%}
 .hidden{display:none!important}
 .notice{font-size:13px;color:#777;margin-top:12px}
 #message{padding:12px;border-radius:8px;margin-bottom:12px;background:#f2f5f8}
+.warning{padding:12px;border-radius:8px;background:#fff4dc;color:#795500;margin:12px 0;font-size:13px}
+.muted{color:#888;font-size:12px}
 canvas{width:100%;height:210px}
 @media(max-width:700px){
  header{padding:16px}header h1{font-size:21px}
@@ -81,7 +81,7 @@ canvas{width:100%;height:210px}
 <header>
 <div>
 <small>MI CONTROL DE TRADING</small>
-<h1>Bitácora de Fondeo</h1>
+<h1>Bitácora de Fondeo Pro</h1>
 </div>
 <div class="actions">
 <span id="userEmail" class="notice"></span>
@@ -92,18 +92,21 @@ canvas{width:100%;height:210px}
 
 <main>
 <div id="message" class="hidden"></div>
+<div id="fxWarning" class="warning hidden"></div>
 
 <section class="panel hero">
 <div>
-<small>GANANCIAS / PÉRDIDAS NETAS</small>
-<div id="net" class="profit">$0.00</div>
-<div class="notice">Balance de todos tus movimientos registrados</div>
+<small>BENEFICIO NETO EN EUROS</small>
+<div id="net" class="profit">€0,00</div>
+<div class="notice">Retiros cobrados menos todos los costes registrados</div>
 </div>
 <div class="metrics">
-<div class="metric"><span>Cuentas</span><strong id="count">0</strong></div>
-<div class="metric"><span>Retiros cobrados</span><strong id="withdrawals">0</strong></div>
-<div class="metric"><span>Gastos</span><strong id="expenses">$0</strong></div>
-<div class="metric"><span>Retiros brutos</span><strong id="payouts">$0</strong></div>
+<div class="metric"><span>Cuentas compradas</span><strong id="count">0</strong></div>
+<div class="metric"><span>Cuentas con retiros</span><strong id="accountsWithPayout">0</strong></div>
+<div class="metric"><span>Cuentas fondeadas</span><strong id="fundedCount">0</strong></div>
+<div class="metric"><span>Inversión total (€)</span><strong id="expenses">€0,00</strong></div>
+<div class="metric"><span>Retiros cobrados (€)</span><strong id="payouts">€0,00</strong></div>
+<div class="metric"><span>Movimientos registrados</span><strong id="movementCount">0</strong></div>
 </div>
 </section>
 
@@ -115,19 +118,28 @@ canvas{width:100%;height:210px}
 <select id="firm" required></select></div>
 <div class="field"><label>Nombre / número de cuenta</label>
 <input id="accountName" placeholder="Ej. 50K - Cuenta 01" required></div>
-<div class="field"><label>Tamaño de cuenta ($)</label>
-<input id="accountSize" type="number" min="0" value="50000"></div>
-<div class="field"><label>Estado</label>
+<div class="field"><label>Tamaño de cuenta (USD)</label>
+<input id="accountSize" type="number" min="0" step=".01" value="50000"></div>
+<div class="field"><label>Estado inicial</label>
 <select id="status">
 <option value="evaluation">En evaluación</option>
 <option value="funded">Fondeada</option>
-<option value="pending_activation">Pendiente de activar</option>
 <option value="burned">Quemada</option>
 <option value="alive">Viva</option>
 </select></div>
 <div class="field"><label>Fecha de compra</label>
 <input id="purchaseDate" type="date" required></div>
+<div class="field"><label>Coste de compra</label>
+<input id="purchaseCost" type="number" min="0" step=".01" value="0" required></div>
+<div class="field"><label>Moneda del coste</label>
+<select id="purchaseCurrency" onchange="updateFxFields()">
+<option value="USD">USD - Dólares</option>
+<option value="EUR">EUR - Euros</option>
+</select></div>
+<div class="field" id="purchaseFxField"><label>Tipo de cambio: 1 USD = EUR</label>
+<input id="purchaseFx" type="number" min=".000001" step=".000001" placeholder="Ej. 0.92"></div>
 </div>
+<p class="muted">Introduce el cambio USD/EUR aplicado el día de la compra. Si pagaste en euros, selecciona EUR.</p>
 <button type="submit">Guardar cuenta</button>
 </form>
 </section>
@@ -139,30 +151,39 @@ canvas{width:100%;height:210px}
 <div class="field"><label>Cuenta</label>
 <select id="movementAccount" required></select></div>
 <div class="field"><label>Tipo de movimiento</label>
-<select id="movementType">
+<select id="movementType" onchange="updateMovementFields()">
 <option value="test">Prueba</option>
 <option value="activation">Activación / Overlay</option>
 <option value="reset">Reinicio</option>
 <option value="payout">Retiro cobrado</option>
 <option value="other_expense">Otro gasto</option>
+<option value="fondeo">Fondeo de cuenta</option>
 </select></div>
-<div class="field"><label>Importe ($)</label>
-<input id="amount" type="number" min="0.01" step=".01" required></div>
+<div class="field"><label>Importe</label>
+<input id="amount" type="number" min="0" step=".01" value="0" required></div>
+<div class="field"><label>Moneda</label>
+<select id="movementCurrency" onchange="updateFxFields()">
+<option value="USD">USD - Dólares</option>
+<option value="EUR">EUR - Euros</option>
+</select></div>
+<div class="field" id="movementFxField"><label>Tipo de cambio: 1 USD = EUR</label>
+<input id="movementFx" type="number" min=".000001" step=".000001" placeholder="Ej. 0.92"></div>
 <div class="field"><label>Fecha</label>
 <input id="movementDate" type="date" required></div>
 <div class="field"><label>Descripción</label>
 <input id="description" placeholder="Opcional"></div>
 </div>
+<p class="muted">En un movimiento de tipo Fondeo, el importe puede ser 0. Al guardarlo, la cuenta pasará automáticamente a Fondeada y se guardará la fecha.</p>
 <button type="submit">Guardar movimiento</button>
 </form>
 </section>
 
 <section class="panel">
-<h2>Quemadas y vivas</h2>
+<h2>Resumen de inversión y resultados</h2>
 <div class="tablewrap">
 <table>
-<thead><tr><th>ESTADO</th><th>CUENTAS</th><th>PRUEBAS</th><th>OTROS GASTOS</th><th>RETIROS</th><th>RESULTADO</th></tr></thead>
-<tbody id="summary"></tbody>
+<thead><tr><th>CONCEPTO</th><th>IMPORTE EN EUR</th></tr></thead>
+<tbody id="totalsTable"></tbody>
 </table>
 </div>
 </section>
@@ -173,15 +194,20 @@ canvas{width:100%;height:210px}
 </section>
 
 <section class="panel">
-<h2>Gasto semanal en pruebas</h2>
-<canvas id="chart" height="210"></canvas>
+<h2>Resumen por estado</h2>
+<div class="tablewrap">
+<table>
+<thead><tr><th>ESTADO</th><th>CUENTAS</th><th>INVERSIÓN (€)</th><th>RETIROS (€)</th><th>NETO (€)</th></tr></thead>
+<tbody id="summary"></tbody>
+</table>
+</div>
 </section>
 
 <section class="panel">
 <h2>Todas mis cuentas</h2>
 <div class="tablewrap">
 <table>
-<thead><tr><th>EMPRESA</th><th>CUENTA</th><th>TAMAÑO</th><th>ESTADO</th><th>FECHA</th><th>ACCIÓN</th></tr></thead>
+<thead><tr><th>EMPRESA</th><th>CUENTA</th><th>TAMAÑO</th><th>COSTE</th><th>COMPRA</th><th>FONDEO</th><th>ESTADO</th><th>ACCIÓN</th></tr></thead>
 <tbody id="accounts"></tbody>
 </table>
 </div>
@@ -200,13 +226,13 @@ canvas{width:100%;height:210px}
 </div>
 </section>
 <footer class="notice" style="text-align:center;padding:20px">
-Bitácora de Fondeo Pro · USD · Datos privados
+Bitácora de Fondeo Pro · Conversión EUR con tipos de cambio registrados · Datos privados
 </footer>
 </main>
 </div>
 
 <script>
-// CONFIGURACIÓN: sustituye estos dos valores
+// CONFIGURACIÓN DE SUPABASE
 const SUPABASE_URL = "https://fbwnxoiihxnzfhpmkxpo.supabase.co";
 const SUPABASE_KEY = "sb_publishable__E9AAcN_faF6DmzKy8jlfQ_q4JveGks";
 
@@ -214,24 +240,30 @@ const db = window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 let user=null, firms=[], accounts=[], movements=[];
 
 const $=id=>document.getElementById(id);
-const money=n=>new Intl.NumberFormat("en-US",{style:"currency",currency:"USD"}).format(Number(n)||0);
-const total=(arr,type)=>arr.filter(m=>m.movement_type===type).reduce((s,m)=>s+Number(m.amount),0);
 const escapeHTML=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const moneyEUR=n=>new Intl.NumberFormat("es-ES",{style:"currency",currency:"EUR"}).format(Number(n)||0);
+const moneyUSD=n=>new Intl.NumberFormat("en-US",{style:"currency",currency:"USD"}).format(Number(n)||0);
+
 const statuses={
  evaluation:"En evaluación",
  funded:"Fondeada",
- pending_activation:"Pendiente activar",
  burned:"Quemada",
  alive:"Viva"
 };
 const types={
  test:"Prueba",
- activation:"Activación",
+ activation:"Activación / Overlay",
  reset:"Reinicio",
- payout:"Retiro",
- other_expense:"Otro gasto"
+ payout:"Retiro cobrado",
+ other_expense:"Otro gasto",
+ fondeo:"Fondeo"
 };
 
+function localDate(){
+ const d=new Date();
+ const offset=d.getTimezoneOffset();
+ return new Date(d.getTime()-offset*60000).toISOString().slice(0,10);
+}
 function notify(msg){
  $("message").textContent=msg;
  $("message").classList.remove("hidden");
@@ -241,47 +273,81 @@ function errorMessage(err){
  console.error(err);
  notify(err.message||"Ha ocurrido un error.");
 }
+function getFx(currency,field){
+ if(currency==="EUR")return 1;
+ const value=Number($(field).value);
+ return value>0?value:null;
+}
+function toEUR(amount,currency,fx){
+ if(currency==="EUR")return Number(amount)||0;
+ if(currency==="USD"&&Number(fx)>0)return Number(amount)*Number(fx);
+ return null;
+}
+function accountCostEUR(a){
+ return toEUR(a.purchase_cost||0,a.purchase_currency||"USD",a.purchase_fx_to_eur);
+}
+function movementEUR(m){
+ return toEUR(m.amount,m.currency||"USD",m.fx_to_eur);
+}
+function isExpense(m){
+ return !["payout","fondeo"].includes(m.movement_type);
+}
+function sumEUR(items,converter){
+ let total=0;
+ items.forEach(item=>{
+  const v=converter(item);
+  if(v!==null)total+=v;
+ });
+ return total;
+}
+function missingFxCount(){
+ let n=0;
+ accounts.forEach(a=>{
+  if(Number(a.purchase_cost)>0&&accountCostEUR(a)===null)n++;
+ });
+ movements.forEach(m=>{
+  if(Number(m.amount)>0&&movementEUR(m)===null)n++;
+ });
+ return n;
+}
+function firmName(id){
+ return firms.find(f=>f.id===id)?.name||"Empresa";
+}
+function accountName(id){
+ return accounts.find(a=>a.id===id)?.account_name||"Cuenta";
+}
 
 async function login(){
  $("loginMessage").textContent="Comprobando acceso...";
  const {error}=await db.auth.signInWithPassword({
- email:$("email").value.trim(),
- password:$("password").value
+  email:$("email").value.trim(),
+  password:$("password").value
  });
  if(error){$("loginMessage").textContent=error.message;return;}
  await checkSession();
 }
-
 async function register(){
-  $("loginMessage").textContent="Creando cuenta...";
-  
-  const {data,error}=await db.auth.signUp({
-    email:$("email").value.trim(),
-    password:$("password").value
-  });
-
-  if(error){
-    $("loginMessage").textContent="Error: "+error.message;
-    return;
-  }
-
-  $("loginMessage").textContent=
-    "Registro enviado. Revisa tu correo para confirmar la cuenta.";
+ $("loginMessage").textContent="Creando cuenta...";
+ const {error}=await db.auth.signUp({
+  email:$("email").value.trim(),
+  password:$("password").value
+ });
+ if(error){$("loginMessage").textContent="Error: "+error.message;return;}
+ $("loginMessage").textContent="Registro enviado. Revisa tu correo para confirmar la cuenta.";
 }
-
 async function resetPassword(){
  const email=$("email").value.trim();
  if(!email){$("loginMessage").textContent="Escribe primero tu correo.";return;}
  const {error}=await db.auth.resetPasswordForEmail(email);
- $("loginMessage").textContent=error?error.message:
- "Te hemos enviado un correo para restablecer tu contraseña.";
+ $("loginMessage").textContent=error?error.message:"Te hemos enviado un correo para restablecer tu contraseña.";
 }
 async function logout(){
  await db.auth.signOut();
  location.reload();
 }
 async function checkSession(){
- const {data}=await db.auth.getSession();
+ const {data,error}=await db.auth.getSession();
+ if(error){$("loginMessage").textContent=error.message;return;}
  if(data.session){
   user=data.session.user;
   $("loginScreen").classList.add("hidden");
@@ -300,25 +366,51 @@ async function loadData(){
   if(f.error)throw f.error;
   if(a.error)throw a.error;
   if(m.error)throw m.error;
-  firms=f.data;accounts=a.data;movements=m.data;
+  firms=f.data||[];
+  accounts=a.data||[];
+  movements=m.data||[];
   render();
  }catch(e){errorMessage(e);}
 }
 
+function updateFxFields(){
+ const pc=$("purchaseCurrency").value;
+ $("purchaseFxField").classList.toggle("hidden",pc==="EUR");
+ const mc=$("movementCurrency").value;
+ $("movementFxField").classList.toggle("hidden",mc==="EUR");
+}
+function updateMovementFields(){
+ const isFunding=$("movementType").value==="fondeo";
+ $("amount").required=true;
+ $("amount").min=isFunding?"0":"0.01";
+ if(isFunding)$("amount").value="0";
+}
 async function addAccount(e){
  e.preventDefault();
  try{
+  const currency=$("purchaseCurrency").value;
+  const cost=Number($("purchaseCost").value)||0;
+  const fx=getFx(currency,"purchaseFx");
+  if(currency==="USD"&&cost>0&&!fx){
+   throw new Error("Introduce el tipo de cambio USD/EUR para el coste de compra.");
+  }
   const {error}=await db.from("accounts").insert({
    owner_id:user.id,
    firm_id:$("firm").value,
    account_name:$("accountName").value.trim(),
    account_size:Number($("accountSize").value)||0,
    status:$("status").value,
-   purchase_date:$("purchaseDate").value
+   purchase_date:$("purchaseDate").value,
+   purchase_cost:cost,
+   purchase_currency:currency,
+   purchase_fx_to_eur:fx
   });
   if(error)throw error;
   $("accountForm").reset();
+  $("accountSize").value="50000";
+  $("purchaseCost").value="0";
   setDates();
+  updateFxFields();
   await loadData();
   notify("Cuenta guardada correctamente.");
  }catch(err){errorMessage(err);}
@@ -326,19 +418,31 @@ async function addAccount(e){
 async function addMovement(e){
  e.preventDefault();
  try{
+  const type=$("movementType").value;
+  const currency=$("movementCurrency").value;
+  const amount=Number($("amount").value);
+  const fx=getFx(currency,"movementFx");
+  if(!Number.isFinite(amount)||amount<0)throw new Error("Introduce un importe válido.");
+  if(type!=="fondeo"&&amount<=0)throw new Error("El importe debe ser mayor que cero.");
+  if(currency==="USD"&&amount>0&&!fx)throw new Error("Introduce el tipo de cambio USD/EUR.");
   const {error}=await db.from("movements").insert({
    owner_id:user.id,
    account_id:$("movementAccount").value,
-   movement_type:$("movementType").value,
-   amount:Number($("amount").value),
+   movement_type:type,
+   amount:amount,
+   currency:currency,
+   fx_to_eur:fx,
    movement_date:$("movementDate").value,
    description:$("description").value.trim()
   });
   if(error)throw error;
   $("movementForm").reset();
+  $("amount").value="0";
   setDates();
+  updateFxFields();
+  updateMovementFields();
   await loadData();
-  notify("Movimiento guardado correctamente.");
+  notify(type==="fondeo"?"Fondeo registrado. La cuenta ha pasado a estado Fondeada.":"Movimiento guardado correctamente.");
  }catch(err){errorMessage(err);}
 }
 async function deleteAccount(id){
@@ -346,12 +450,14 @@ async function deleteAccount(id){
  const {error}=await db.from("accounts").delete().eq("id",id);
  if(error){errorMessage(error);return;}
  await loadData();
+ notify("Cuenta eliminada.");
 }
 async function deleteMovement(id){
  if(!confirm("¿Eliminar este movimiento?"))return;
  const {error}=await db.from("movements").delete().eq("id",id);
  if(error){errorMessage(error);return;}
  await loadData();
+ notify("Movimiento eliminado.");
 }
 async function changeStatus(id,status){
  const {error}=await db.from("accounts").update({status}).eq("id",id);
@@ -364,123 +470,137 @@ async function addFirm(){
  const {error}=await db.from("firms").insert({owner_id:user.id,name:name.trim()});
  if(error){errorMessage(error);return;}
  await loadData();
+ notify("Empresa añadida.");
 }
 
 function render(){
- const firmName=id=>firms.find(f=>f.id===id)?.name||"Empresa";
- const accountName=id=>accounts.find(a=>a.id===id)?.account_name||"Cuenta";
- const expense=movements.filter(m=>m.movement_type!=="payout");
- const payout=total(movements,"payout");
- const expenses=expense.reduce((s,m)=>s+Number(m.amount),0);
- const net=payout-expenses;
+ const expensesMovements=movements.filter(isExpense);
+ const totalPurchases=sumEUR(accounts,accountCostEUR);
+ const totalMovementCosts=sumEUR(expensesMovements,movementEUR);
+ const totalInvestment=totalPurchases+totalMovementCosts;
+ const payouts=sumEUR(movements.filter(m=>m.movement_type==="payout"),movementEUR);
+ const net=payouts-totalInvestment;
 
- $("net").textContent=money(net);
+ $("net").textContent=moneyEUR(net);
  $("net").style.color=net>=0?"#087a26":"#c34444";
  $("count").textContent=accounts.length;
- $("withdrawals").textContent=movements.filter(m=>m.movement_type==="payout").length;
- $("expenses").textContent=money(expenses);
- $("payouts").textContent=money(payout);
+ $("accountsWithPayout").textContent=new Set(movements.filter(m=>m.movement_type==="payout").map(m=>m.account_id)).size;
+ $("fundedCount").textContent=accounts.filter(a=>a.status==="funded").length;
+ $("expenses").textContent=moneyEUR(totalInvestment);
+ $("payouts").textContent=moneyEUR(payouts);
+ $("movementCount").textContent=movements.length;
+
+ const missing=missingFxCount();
+ if(missing){
+  $("fxWarning").textContent=`Hay ${missing} registro(s) sin tipo de cambio guardado. No se incluyen en los totales en euros hasta que se complete su conversión.`;
+  $("fxWarning").classList.remove("hidden");
+ }else{
+  $("fxWarning").classList.add("hidden");
+ }
 
  $("firm").innerHTML=firms.map(f=>`<option value="${f.id}">${escapeHTML(f.name)}</option>`).join("");
  $("movementAccount").innerHTML=accounts.map(a=>`<option value="${a.id}">${escapeHTML(firmName(a.firm_id))} - ${escapeHTML(a.account_name)}</option>`).join("");
 
- const states=Object.keys(statuses);
- $("summary").innerHTML=states.map(s=>{
-  const group=accounts.filter(a=>a.status===s);
-  const ids=group.map(a=>a.id);
-  const ms=movements.filter(m=>ids.includes(m.account_id));
-  const exp=ms.filter(m=>m.movement_type!=="payout").reduce((v,m)=>v+Number(m.amount),0);
-  const pay=total(ms,"payout");
-  return `<tr><td>${statuses[s]}</td><td>${group.length}</td><td>${money(total(ms,"test"))}</td><td>${money(exp-total(ms,"test"))}</td><td>${money(pay)}</td><td class="${pay-exp>=0?"green":"red"}">${money(pay-exp)}</td></tr>`;
- }).join("");
+ $("totalsTable").innerHTML=`
+ <tr><td>Coste de compra de cuentas</td><td>${moneyEUR(totalPurchases)}</td></tr>
+ <tr><td>Pruebas, activaciones, reinicios y otros gastos</td><td>${moneyEUR(totalMovementCosts)}</td></tr>
+ <tr><td><strong>Inversión total</strong></td><td><strong>${moneyEUR(totalInvestment)}</strong></td></tr>
+ <tr><td>Retiros efectivamente cobrados</td><td>${moneyEUR(payouts)}</td></tr>
+ <tr><td><strong>Beneficio neto</strong></td><td class="${net>=0?"green":"red"}"><strong>${moneyEUR(net)}</strong></td></tr>`;
 
  $("companies").innerHTML=firms.map(f=>{
   const group=accounts.filter(a=>a.firm_id===f.id);
   const ids=group.map(a=>a.id);
   const ms=movements.filter(m=>ids.includes(m.account_id));
-  const pay=total(ms,"payout");
-  const exp=ms.filter(m=>m.movement_type!=="payout").reduce((v,m)=>v+Number(m.amount),0);
-  const burned=group.filter(a=>a.status==="burned").length;
+  const purchases=sumEUR(group,accountCostEUR);
+  const costs=sumEUR(ms.filter(isExpense),movementEUR);
+  const paid=sumEUR(ms.filter(m=>m.movement_type==="payout"),movementEUR);
+  const investment=purchases+costs;
+  const result=paid-investment;
+  const withPayout=new Set(ms.filter(m=>m.movement_type==="payout").map(m=>m.account_id)).size;
   return `<article class="company">
    <h3>${escapeHTML(f.name)} <small style="float:right;color:#888">${group.length} cuentas</small></h3>
    <div class="companystats">
-    <div><strong>${money(total(ms,"test"))}</strong><small>Pruebas</small></div>
-    <div><strong>${money(exp-total(ms,"test"))}</strong><small>Otros gastos</small></div>
-    <div><strong class="green">${money(pay)}</strong><small>Retiros</small></div>
-    <div><strong class="${pay-exp>=0?"green":"red"}">${money(pay-exp)}</strong><small>Resultado</small></div>
+    <div><strong>${moneyEUR(investment)}</strong><small>Invertido</small></div>
+    <div><strong>${moneyEUR(paid)}</strong><small>Retiros cobrados</small></div>
+    <div><strong class="${result>=0?"green":"red"}">${moneyEUR(result)}</strong><small>Beneficio neto</small></div>
+    <div><strong>${withPayout}</strong><small>Cuentas con retiros</small></div>
    </div>
-   <div class="bar"><span style="width:${group.length?burned/group.length*100:0}%"></span></div>
-   <small style="color:#888">${burned} quemadas · ${group.filter(a=>a.status==="funded").length} fondeadas · ${group.filter(a=>a.status==="evaluation").length} en evaluación</small>
+   <p class="muted">${group.filter(a=>a.status==="funded").length} fondeadas · ${group.filter(a=>a.status==="burned").length} quemadas · ${group.filter(a=>a.status==="evaluation").length} en evaluación</p>
   </article>`;
  }).join("")+`<article class="company" style="display:flex;align-items:center;justify-content:center">
  <button class="secondary" onclick="addFirm()">+ Añadir empresa</button></article>`;
 
+ $("summary").innerHTML=Object.entries(statuses).map(([state,label])=>{
+  const group=accounts.filter(a=>a.status===state);
+  const ids=group.map(a=>a.id);
+  const ms=movements.filter(m=>ids.includes(m.account_id));
+  const investment=sumEUR(group,accountCostEUR)+sumEUR(ms.filter(isExpense),movementEUR);
+  const paid=sumEUR(ms.filter(m=>m.movement_type==="payout"),movementEUR);
+  const result=paid-investment;
+  return `<tr><td>${label}</td><td>${group.length}</td><td>${moneyEUR(investment)}</td><td>${moneyEUR(paid)}</td><td class="${result>=0?"green":"red"}">${moneyEUR(result)}</td></tr>`;
+ }).join("");
+
  $("accounts").innerHTML=accounts.map(a=>`
- <tr><td>${escapeHTML(firmName(a.firm_id))}</td>
- <td>${escapeHTML(a.account_name)}</td><td>${money(a.account_size)}</td>
+ <tr>
+ <td>${escapeHTML(firmName(a.firm_id))}</td>
+ <td>${escapeHTML(a.account_name)}</td>
+ <td>${moneyUSD(a.account_size)}</td>
+ <td>${moneyEUR(accountCostEUR(a)??0)} <small>${escapeHTML(a.purchase_currency||"USD")}</small></td>
+ <td>${a.purchase_date||""}</td>
+ <td>${a.funded_date||"—"}</td>
  <td><select onchange="changeStatus('${a.id}',this.value)">
  ${Object.entries(statuses).map(([v,n])=>`<option value="${v}" ${a.status===v?"selected":""}>${n}</option>`).join("")}
- </select></td><td>${a.purchase_date||""}</td>
- <td><button class="danger" onclick="deleteAccount('${a.id}')">Eliminar</button></td></tr>`).join("")||"<tr><td colspan='6'>Todavía no hay cuentas.</td></tr>";
+ </select></td>
+ <td><button class="danger" onclick="deleteAccount('${a.id}')">Eliminar</button></td>
+ </tr>`).join("")||"<tr><td colspan='8'>Todavía no hay cuentas.</td></tr>";
 
  $("movements").innerHTML=movements.map(m=>`
- <tr><td>${m.movement_date}</td>
+ <tr>
+ <td>${m.movement_date}</td>
  <td>${escapeHTML(firmName(accounts.find(a=>a.id===m.account_id)?.firm_id))}</td>
  <td>${escapeHTML(accountName(m.account_id))}</td>
- <td>${types[m.movement_type]}</td><td>${money(m.amount)}</td>
- <td><button class="danger" onclick="deleteMovement('${m.id}')">Eliminar</button></td></tr>`).join("")||"<tr><td colspan='6'>Todavía no hay movimientos.</td></tr>";
+ <td>${types[m.movement_type]||m.movement_type}</td>
+ <td>${Number(m.amount).toFixed(2)} ${escapeHTML(m.currency||"USD")}</td>
+ <td><button class="danger" onclick="deleteMovement('${m.id}')">Eliminar</button></td>
+ </tr>`).join("")||"<tr><td colspan='6'>Todavía no hay movimientos.</td></tr>";
+}
 
- drawChart();
-}
-function drawChart(){
- const canvas=$("chart");
- const ctx=canvas.getContext("2d");
- const w=canvas.clientWidth||600,h=210,dpr=window.devicePixelRatio||1;
- canvas.width=w*dpr;canvas.height=h*dpr;
- ctx.scale(dpr,dpr);
- ctx.clearRect(0,0,w,h);
- const weeks={};
- movements.filter(m=>m.movement_type==="test").forEach(m=>{
-  const d=new Date(m.movement_date+"T12:00:00");
-  d.setDate(d.getDate()-((d.getDay()+6)%7));
-  const key=d.toLocaleDateString("en-US",{month:"short",day:"numeric"});
-  weeks[key]=(weeks[key]||0)+Number(m.amount);
- });
- const entries=Object.entries(weeks).slice(-10);
- if(!entries.length){ctx.fillStyle="#888";ctx.fillText("Añade pruebas para ver el gráfico",15,35);return;}
- const max=Math.max(...entries.map(e=>e[1]),1);
- const gap=12,bw=(w-40)/entries.length-gap;
- entries.forEach(([label,val],i)=>{
-  const x=20+i*(bw+gap);
-  const bh=val/max*145;
-  ctx.fillStyle="#2879ce";
-  ctx.fillRect(x,165-bh,bw,bh);
-  ctx.fillStyle="#333";ctx.font="11px Arial";
-  ctx.textAlign="center";
-  ctx.fillText(Math.round(val),x+bw/2,155-bh);
-  ctx.fillStyle="#888";
-  ctx.fillText(label,x+bw/2,185);
- });
-}
 function setDates(){
- const today=new Date().toISOString().slice(0,10);
+ const today=localDate();
  $("purchaseDate").value=today;
  $("movementDate").value=today;
 }
 function exportCSV(){
- const rows=[["Fecha","Cuenta","Tipo","Importe USD","Descripción"],
- ...movements.map(m=>[m.movement_date,accountName(m.account_id),types[m.movement_type],m.amount,m.description])];
+ const rows=[
+ ["Fecha","Empresa","Cuenta","Tipo","Importe","Moneda","Tipo de cambio EUR","Importe EUR","Descripción"],
+ ...movements.map(m=>[
+  m.movement_date,
+  firmName(accounts.find(a=>a.id===m.account_id)?.firm_id),
+  accountName(m.account_id),
+  types[m.movement_type]||m.movement_type,
+  m.amount,
+  m.currency||"USD",
+  m.fx_to_eur??"",
+  movementEUR(m)??"",
+  m.description||""
+ ])
+ ];
  const csv=rows.map(r=>r.map(v=>'"'+String(v??"").replace(/"/g,'""')+'"').join(";")).join("\n");
  const blob=new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8"});
  const url=URL.createObjectURL(blob);
  const link=document.createElement("a");
- link.href=url;link.download="bitacora-fondeo.csv";link.click();
+ link.href=url;
+ link.download="bitacora-fondeo.csv";
+ link.click();
  URL.revokeObjectURL(url);
 }
+
 $("accountForm").addEventListener("submit",addAccount);
 $("movementForm").addEventListener("submit",addMovement);
-window.addEventListener("resize",()=>{if(! $("app").classList.contains("hidden"))drawChart();});
 setDates();
+updateFxFields();
+updateMovementFields();
 checkSession();
 </script>
 </body>

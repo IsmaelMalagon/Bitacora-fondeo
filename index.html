@@ -201,22 +201,32 @@ hr{border:0;border-top:1px solid #eee;margin:20px 0}
 </section>
 
 <section class="panel">
-<h2>Registrar resumen mensual MT5</h2>
-<p class="section-note">Introduce los totales del informe mensual. Se guardan como movimientos agregados. No importes dos veces el mismo resumen.</p>
+<h2>Registrar informe mensual MT5</h2>
+<p class="section-note">Este informe se guarda por separado. No modifica el saldo ni añade operaciones diarias.</p>
 <form id="monthlyForm">
 <div class="formgrid">
 <div class="field"><label>Cuenta MT5</label><select id="monthlyAccount" required></select></div>
-<div class="field"><label>Fecha del informe</label><input id="reportDate" type="date" required></div>
+<div class="field"><label>Mes del informe</label><input id="reportDate" type="month" required></div>
 <div class="field"><label>Depósitos USD</label><input id="reportDeposits" type="number" min="0" step=".01" value="0"></div>
 <div class="field"><label>Retiradas USD</label><input id="reportWithdrawals" type="number" min="0" step=".01" value="0"></div>
 <div class="field"><label>Ganancia bruta USD</label><input id="reportProfit" type="number" min="0" step=".01" value="0"></div>
 <div class="field"><label>Pérdida bruta USD</label><input id="reportLoss" type="number" min="0" step=".01" value="0"></div>
 <div class="field"><label>Comisiones USD</label><input id="reportCommission" type="number" min="0" step=".01" value="0"></div>
 <div class="field"><label>Swaps USD</label><input id="reportSwap" type="number" min="0" step=".01" value="0"></div>
+<div class="field"><label>Balance final USD</label><input id="reportClosingBalance" type="number" step=".01" placeholder="Balance del informe"></div>
+<div class="field"><label>Equity final USD</label><input id="reportClosingEquity" type="number" step=".01" placeholder="Equity del informe"></div>
 </div>
-<button type="submit">Guardar resumen mensual</button>
+<button type="submit">Guardar informe mensual</button>
 </form>
-<p class="notice">Los informes PDF resumidos no se convierten automáticamente en operaciones individuales.</p>
+<p class="notice">El informe mensual es independiente de los resultados diarios. Los importes se introducen manualmente a partir del extracto del bróker.</p>
+</section>
+
+<section class="panel">
+<h2>Historial de informes mensuales MT5</h2>
+<div class="tablewrap"><table>
+<thead><tr><th>MES</th><th>CUENTA</th><th>DEPÓSITOS</th><th>RETIRADAS</th><th>GANANCIA</th><th>PÉRDIDA</th><th>COMISIONES</th><th>SWAPS</th><th>NETO INFORME</th><th>BALANCE FINAL</th><th>EQUITY FINAL</th><th>ACCIÓN</th></tr></thead>
+<tbody id="monthlyReports"></tbody></table></div>
+<button class="secondary" onclick="exportMonthlyCSV()">Exportar informes mensuales CSV</button>
 </section>
 
 <section class="panel">
@@ -233,11 +243,11 @@ hr{border:0;border-top:1px solid #eee;margin:20px 0}
 
 <script>
 const SUPABASE_URL="https://fbwnxoiihxnzfhpmkxpo.supabase.co";
-// Pega aquí tu misma clave pública publishable actual de Supabase.
+// Mantén aquí la misma clave pública publishable de Supabase que utilizabas.
 const SUPABASE_KEY="sb_publishable__E9AAcN_faF6DmzKy8jlfQ_q4JveGks";
 const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 
-let user=null,firms=[],accounts=[],movements=[],tradingAccounts=[],tradingTransactions=[];
+let user=null,firms=[],accounts=[],movements=[],tradingAccounts=[],tradingTransactions=[],monthlyReports=[];
 const $=id=>document.getElementById(id);
 const money=(n,c="USD")=>new Intl.NumberFormat("es-ES",{style:"currency",currency:c}).format(Number(n)||0);
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -248,7 +258,11 @@ const transactionNames={deposit:"Depósito",withdrawal:"Retirada",trade_profit:"
 function notify(s){$("message").textContent=s;$("message").classList.remove("hidden");window.scrollTo({top:0,behavior:"smooth"});}
 function errorMessage(e){console.error(e);notify(e.message||"Ha ocurrido un error.");}
 function today(){return new Date().toISOString().slice(0,10);}
-function setDates(){["purchaseDate","movementDate","transactionDate","reportDate"].forEach(id=>$(id).value=today());}
+function currentMonth(){return today().slice(0,7);}
+function setDates(){
+ ["purchaseDate","movementDate","transactionDate"].forEach(id=>$(id).value=today());
+ $("reportDate").value=currentMonth();
+}
 function updateFxHelp(c,f){$(f).value=$(c).value==="EUR"?"1":"0.92";}
 function fxValue(c,r){if(c==="EUR")return 1;let n=Number(r);if(!Number.isFinite(n)||n<=0)throw Error("Introduce un cambio válido a euros.");return n;}
 function amountInEUR(a,c,r){return Number(a||0)*fxValue(c,r);}
@@ -280,10 +294,11 @@ async function loadData(){
    db.from("accounts").select("*").order("created_at",{ascending:false}),
    db.from("movements").select("*").order("movement_date",{ascending:false}),
    db.from("trading_accounts").select("*").order("created_at",{ascending:false}),
-   db.from("trading_transactions").select("*").order("transaction_date",{ascending:true}).order("created_at",{ascending:true})
+   db.from("trading_transactions").select("*").order("transaction_date",{ascending:true}).order("created_at",{ascending:true}),
+   db.from("trading_monthly_reports").select("*").order("report_month",{ascending:false})
   ]);
   for(const r of results)if(r.error)throw r.error;
-  [firms,accounts,movements,tradingAccounts,tradingTransactions]=results.map(r=>r.data||[]);
+  [firms,accounts,movements,tradingAccounts,tradingTransactions,monthlyReports]=results.map(r=>r.data||[]);
   render();
  }catch(e){errorMessage(e);}
 }
@@ -333,6 +348,11 @@ async function addTradingAccount(){
  if(error){errorMessage(error);return;}await loadData();notify("Cuenta MT5 añadida.");
 }
 
+// Los antiguos resúmenes mensuales se excluyen de los cálculos diarios.
+function isLegacyMonthly(t){return String(t.external_id||"").startsWith("monthly-");}
+function dailyTransactions(id){
+ return tradingTransactions.filter(t=>t.trading_account_id===id&&!isLegacyMonthly(t));
+}
 function transactionEffect(t){
  switch(t.transaction_type){
   case "deposit":case "trade_profit":return 1;
@@ -342,7 +362,7 @@ function transactionEffect(t){
  }
 }
 function accountTransactions(id){
- return tradingTransactions.filter(t=>t.trading_account_id===id).slice().sort((a,b)=>{
+ return dailyTransactions(id).slice().sort((a,b)=>{
   const d=String(a.transaction_date).localeCompare(String(b.transaction_date));
   if(d)return d;
   return String(a.created_at||"").localeCompare(String(b.created_at||""));
@@ -352,8 +372,6 @@ function accountCurrentBalance(a){
  return Number(a.initial_balance||0)+accountTransactions(a.id).reduce((s,t)=>s+Number(t.amount)*transactionEffect(t),0);
 }
 function accountOpeningDisplay(a){
- // El primer depósito se muestra como capital inicial informativo.
- // Sigue siendo una transacción y no se suma dos veces.
  if(Number(a.initial_balance||0)!==0)return Number(a.initial_balance);
  const first=accountTransactions(a.id).find(t=>t.transaction_type==="deposit");
  return first?Number(first.amount):0;
@@ -366,7 +384,8 @@ function transactionRunningBalances(a){
  });
 }
 function tradingTotals(){
- const sum=type=>tradingTransactions.filter(t=>t.transaction_type===type).reduce((s,t)=>s+Number(t.amount),0);
+ const daily=tradingTransactions.filter(t=>!isLegacyMonthly(t));
+ const sum=type=>daily.filter(t=>t.transaction_type===type).reduce((s,t)=>s+Number(t.amount),0);
  const profit=sum("trade_profit"),loss=sum("trade_loss"),commission=sum("commission"),swap=sum("swap"),deposits=sum("deposit"),withdrawals=sum("withdrawal");
  return {profit,loss,commission,swap,deposits,withdrawals,net:profit-loss-commission-swap};
 }
@@ -380,23 +399,60 @@ async function addTradingTransaction(e){
   $("tradingForm").reset();$("balanceEffectField").classList.add("hidden");setDates();await loadData();notify("Movimiento MT5 guardado.");
  }catch(e){errorMessage(e);}
 }
+
 async function addMonthlySummary(e){
  e.preventDefault();
  try{
-  const id=$("monthlyAccount").value,date=$("reportDate").value,month=date.slice(0,7);
-  const items=[["deposit","Depósitos",Number($("reportDeposits").value)||0],["withdrawal","Retiradas",Number($("reportWithdrawals").value)||0],["trade_profit","Ganancia bruta",Number($("reportProfit").value)||0],["trade_loss","Pérdida bruta",Number($("reportLoss").value)||0],["commission","Comisiones",Number($("reportCommission").value)||0],["swap","Swaps",Number($("reportSwap").value)||0]];
-  if(!items.some(x=>x[2]>0))throw Error("Introduce al menos un importe.");
-  const rows=[];
-  for(const [type,label,amount] of items){
-   if(amount<=0)continue;
-   const external_id="monthly-"+id+"-"+month+"-"+type;
-   const {data,error}=await db.from("trading_transactions").select("id").eq("external_id",external_id).limit(1);
-   if(error)throw error;if(data?.length)throw Error("Ya existe un resumen mensual de "+month+". No se ha añadido.");
-   rows.push({owner_id:user.id,trading_account_id:id,transaction_type:type,amount,currency:"USD",transaction_date:date,description:"Resumen mensual MT5: "+label+" ("+month+")",external_id});
+  const accountId=$("monthlyAccount").value;
+  const month=$("reportDate").value;
+  if(!accountId)throw Error("Selecciona una cuenta MT5.");
+  if(!month)throw Error("Selecciona el mes del informe.");
+
+  const values={
+   deposits:Number($("reportDeposits").value)||0,
+   withdrawals:Number($("reportWithdrawals").value)||0,
+   gross_profit:Number($("reportProfit").value)||0,
+   gross_loss:Number($("reportLoss").value)||0,
+   commissions:Number($("reportCommission").value)||0,
+   swaps:Number($("reportSwap").value)||0
+  };
+  const closingBalance=$("reportClosingBalance").value;
+  const closingEquity=$("reportClosingEquity").value;
+
+  if(Object.values(values).some(v=>v<0))throw Error("Los importes del informe no pueden ser negativos.");
+
+  const reportMonth=month+"-01";
+  const payload={
+   owner_id:user.id,
+   trading_account_id:accountId,
+   report_month:reportMonth,
+   ...values,
+   closing_balance:closingBalance===""?null:Number(closingBalance),
+   closing_equity:closingEquity===""?null:Number(closingEquity)
+  };
+
+  if(payload.closing_balance!==null&&!Number.isFinite(payload.closing_balance))throw Error("El balance final no es válido.");
+  if(payload.closing_equity!==null&&!Number.isFinite(payload.closing_equity))throw Error("El equity final no es válido.");
+
+  const {error}=await db.from("trading_monthly_reports").insert(payload);
+  if(error){
+   if(error.code==="23505")throw Error("Ya existe un informe para esa cuenta y ese mes. No se ha guardado otro.");
+   throw error;
   }
-  const {error}=await db.from("trading_transactions").insert(rows);if(error)throw error;
-  $("monthlyForm").reset();["reportDeposits","reportWithdrawals","reportProfit","reportLoss","reportCommission","reportSwap"].forEach(x=>$(x).value="0");setDates();await loadData();notify("Resumen mensual guardado.");
+
+  $("monthlyForm").reset();
+  ["reportDeposits","reportWithdrawals","reportProfit","reportLoss","reportCommission","reportSwap"].forEach(x=>$(x).value="0");
+  setDates();
+  await loadData();
+  notify("Informe mensual guardado. No se ha modificado el saldo de MT5.");
  }catch(e){errorMessage(e);}
+}
+
+async function deleteMonthlyReport(id){
+ if(!confirm("¿Eliminar este informe mensual? No se eliminarán las operaciones diarias."))return;
+ const {error}=await db.from("trading_monthly_reports").delete().eq("id",id);
+ if(error){errorMessage(error);return;}
+ await loadData();notify("Informe mensual eliminado.");
 }
 async function deleteTradingAccount(id){
  if(!confirm("¿Eliminar esta cuenta MT5 y sus transacciones?"))return;
@@ -415,6 +471,7 @@ function accountCostsEUR(a){
  }return total;
 }
 function accountPayoutsEUR(a){return movements.filter(m=>m.account_id===a.id&&m.movement_type==="payout").reduce((s,m)=>s+amountInEUR(m.amount,m.currency||"USD",m.fx_to_eur),0);}
+
 function render(){
  const firmName=id=>firms.find(f=>f.id===id)?.name||"Empresa";
  const accountName=id=>accounts.find(a=>a.id===id)?.account_name||"Cuenta";
@@ -424,18 +481,22 @@ function render(){
  $("count").textContent=accounts.length;$("fundedCount").textContent=accounts.filter(a=>a.status==="funded").length;$("burnedCount").textContent=accounts.filter(a=>a.status==="burned").length;$("investment").textContent=money(investment,"EUR");
  $("firm").innerHTML=firms.map(f=>`<option value="${f.id}">${esc(f.name)}</option>`).join("");
  $("movementAccount").innerHTML=accounts.map(a=>`<option value="${a.id}">${esc(firmName(a.firm_id))} - ${esc(a.account_name)}</option>`).join("");
+
  $("companies").innerHTML=firms.map(f=>{
   const list=accounts.filter(a=>a.firm_id===f.id),cost=list.reduce((s,a)=>s+accountCostsEUR(a),0),paid=list.reduce((s,a)=>s+accountPayoutsEUR(a),0),result=paid-cost;
   return `<div class="company"><h3>${esc(f.name)}</h3><p>Cuentas: <strong>${list.length}</strong></p><p>Fondeadas: <strong>${list.filter(a=>a.status==="funded").length}</strong> · Quemadas: <strong>${list.filter(a=>a.status==="burned").length}</strong></p><p>Inversión: <strong>${money(cost,"EUR")}</strong></p><p>Retiros cobrados: <strong>${money(paid,"EUR")}</strong></p><p>Resultado: <strong class="${result>=0?"green":"red"}">${money(result,"EUR")}</strong></p></div>`;
  }).join("")||"<p>Aún no has añadido empresas.</p>";
+
  $("companyResults").innerHTML=firms.map(f=>{
   const list=accounts.filter(a=>a.firm_id===f.id),cost=list.reduce((s,a)=>s+accountCostsEUR(a),0),paid=list.reduce((s,a)=>s+accountPayoutsEUR(a),0),result=paid-cost;
   return `<div class="company"><h3>${esc(f.name)}</h3><p>${list.length} cuentas registradas</p><p>Resultado neto: <strong class="${result>=0?"green":"red"}">${money(result,"EUR")}</strong></p></div>`;
  }).join("")||"<p>Sin resultados todavía.</p>";
+
  $("accounts").innerHTML=accounts.map(a=>{
   const opts=["evaluation","funded","burned","alive"].map(s=>`<option value="${s}" ${a.status===s?"selected":""}>${statusNames[s]}</option>`).join("");
   return `<tr><td>${esc(firmName(a.firm_id))}</td><td>${esc(a.account_name)}</td><td>${esc(a.account_type||"")}</td><td>${money(a.account_size,"USD")}</td><td><select onchange="changeStatus('${a.id}',this.value)">${opts}</select></td><td>${esc(a.purchase_date||"")}</td><td>${esc(a.funded_date||"Pendiente")}</td><td><button class="danger" onclick="deleteAccount('${a.id}')">Eliminar</button></td></tr>`;
  }).join("")||"<tr><td colspan='8'>Todavía no hay cuentas.</td></tr>";
+
  $("movements").innerHTML=movements.map(m=>{
   const a=accounts.find(x=>x.id===m.account_id);
   return `<tr><td>${esc(m.movement_date)}</td><td>${esc(firmName(a?.firm_id))}</td><td>${esc(accountName(m.account_id))}</td><td>${esc(movementNames[m.movement_type]||m.movement_type)}</td><td>${money(m.amount,m.currency||"USD")}</td><td><button class="danger" onclick="deleteMovement('${m.id}')">Eliminar</button></td></tr>`;
@@ -443,17 +504,42 @@ function render(){
 
  $("tradingCount").textContent=tradingAccounts.length;
  $("tradingAccounts").innerHTML=tradingAccounts.map(a=>`<tr><td>${esc(a.broker)}</td><td>${esc(a.account_name)}</td><td>${esc(a.currency)}</td><td>${money(accountOpeningDisplay(a),a.currency||"USD")}</td><td><strong>${money(accountCurrentBalance(a),a.currency||"USD")}</strong></td><td><button class="danger" onclick="deleteTradingAccount('${a.id}')">Eliminar</button></td></tr>`).join("")||"<tr><td colspan='6'>Añade tu primera cuenta MT5.</td></tr>";
+
  $("tradingBalanceCards").innerHTML=tradingAccounts.map(a=>`<div class="balance-card"><span>${esc(a.broker)} · ${esc(a.account_name)}</span><strong>${money(accountCurrentBalance(a),a.currency||"USD")}</strong><small>Saldo actual calculado</small></div>`).join("");
+
  const options=tradingAccounts.map(a=>`<option value="${a.id}">${esc(a.broker)} - ${esc(a.account_name)}</option>`).join("");
  $("tradingAccountSelect").innerHTML=options;$("monthlyAccount").innerHTML=options;
+
  const totals=tradingTotals();
  $("deposits").textContent=money(totals.deposits);$("tradingWithdrawals").textContent=money(totals.withdrawals);$("tradingNet").textContent=money(totals.net);$("tradingNet").className=totals.net>=0?"green":"red";
+
+ // Historial de informes: se muestra separado del historial diario.
+ $("monthlyReports").innerHTML=monthlyReports.map(r=>{
+  const netReport=Number(r.gross_profit||0)-Number(r.gross_loss||0)-Number(r.commissions||0)-Number(r.swaps||0);
+  const month=String(r.report_month||"").slice(0,7);
+  return `<tr>
+   <td>${esc(month)}</td>
+   <td>${esc(tradingName(r.trading_account_id))}</td>
+   <td>${money(r.deposits)}</td>
+   <td>${money(r.withdrawals)}</td>
+   <td>${money(r.gross_profit)}</td>
+   <td>${money(r.gross_loss)}</td>
+   <td>${money(r.commissions)}</td>
+   <td>${money(r.swaps)}</td>
+   <td><strong class="${netReport>=0?"green":"red"}">${money(netReport)}</strong></td>
+   <td>${r.closing_balance===null?"—":money(r.closing_balance)}</td>
+   <td>${r.closing_equity===null?"—":money(r.closing_equity)}</td>
+   <td><button class="danger" onclick="deleteMonthlyReport('${r.id}')">Eliminar</button></td>
+  </tr>`;
+ }).join("")||"<tr><td colspan='12'>Todavía no hay informes mensuales.</td></tr>";
 
  const running=new Map();
  for(const a of tradingAccounts)running.set(a.id,transactionRunningBalances(a));
  const balanceById=new Map();
  for(const [id,rows] of running)for(const r of rows)balanceById.set(r.id,r.balance);
- $("tradingTransactions").innerHTML=tradingTransactions.slice().sort((a,b)=>{
+
+ const visibleTransactions=tradingTransactions.filter(t=>!isLegacyMonthly(t));
+ $("tradingTransactions").innerHTML=visibleTransactions.slice().sort((a,b)=>{
   const d=String(b.transaction_date).localeCompare(String(a.transaction_date));return d||String(b.created_at||"").localeCompare(String(a.created_at||""));
  }).map(t=>{
   const sign=transactionEffect(t),effect=sign>0?"+":sign<0?"−":"";
@@ -472,8 +558,17 @@ function exportPropCSV(){
  downloadCSV("bitacora-prop-firms.csv",rows);
 }
 function exportTradingCSV(){
- const rows=[["Fecha","Cuenta","Tipo","Importe USD","Efecto","Saldo después","Descripción"],...tradingTransactions.map(t=>{const a=tradingAccounts.find(x=>x.id===t.trading_account_id),bal=transactionRunningBalances(a||{id:"",initial_balance:0}).find(x=>x.id===t.id);return [t.transaction_date,a?.account_name,transactionNames[t.transaction_type]||t.transaction_type,t.amount,transactionEffect(t),bal?.balance,t.description];})];
+ const daily=tradingTransactions.filter(t=>!isLegacyMonthly(t));
+ const rows=[["Fecha","Cuenta","Tipo","Importe USD","Efecto","Saldo después","Descripción"],...daily.map(t=>{const a=tradingAccounts.find(x=>x.id===t.trading_account_id),bal=transactionRunningBalances(a||{id:"",initial_balance:0}).find(x=>x.id===t.id);return [t.transaction_date,a?.account_name,transactionNames[t.transaction_type]||t.transaction_type,t.amount,transactionEffect(t),bal?.balance,t.description];})];
  downloadCSV("bitacora-mt5.csv",rows);
+}
+function exportMonthlyCSV(){
+ const rows=[["Mes","Cuenta","Depósitos","Retiradas","Ganancia bruta","Pérdida bruta","Comisiones","Swaps","Neto informe","Balance final","Equity final"],...monthlyReports.map(r=>{
+  const a=tradingAccounts.find(x=>x.id===r.trading_account_id);
+  const net=Number(r.gross_profit||0)-Number(r.gross_loss||0)-Number(r.commissions||0)-Number(r.swaps||0);
+  return [String(r.report_month||"").slice(0,7),a?.account_name,r.deposits,r.withdrawals,r.gross_profit,r.gross_loss,r.commissions,r.swaps,net,r.closing_balance,r.closing_equity];
+ })];
+ downloadCSV("bitacora-informes-mensuales.csv",rows);
 }
 
 $("accountForm").addEventListener("submit",addAccount);
